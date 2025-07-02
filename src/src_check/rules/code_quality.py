@@ -39,6 +39,9 @@ class CodeQualityChecker(BaseChecker):
         
         for visitor in visitors:
             visitor.visit(ast_tree)
+            # Call finalize for visitors that need it
+            if hasattr(visitor, 'finalize'):
+                visitor.finalize()
         
         # Set severity based on findings
         if result.failure_count > 0:
@@ -67,6 +70,11 @@ class NamingConventionVisitor(ast.NodeVisitor):
     
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Check function naming."""
+        # Skip visit_* methods (AST visitor pattern)
+        if node.name.startswith('visit_'):
+            self.generic_visit(node)
+            return
+            
         if not self._is_snake_case(node.name) and not node.name.startswith('_'):
             # Allow dunder methods
             if not (node.name.startswith('__') and node.name.endswith('__')):
@@ -224,8 +232,9 @@ class UnusedImportsVisitor(ast.NodeVisitor):
     def __init__(self, file_path: str, result: CheckResult):
         self.file_path = file_path
         self.result = result
-        self.imports = {}  # name -> (line, col)
+        self.imports = {}  # name -> (line, col, full_name)
         self.used_names = set()
+        self._analyzed = False  # Flag to prevent duplicate analysis
     
     def visit_Import(self, node: ast.Import) -> None:
         """Track imports."""
@@ -240,7 +249,8 @@ class UnusedImportsVisitor(ast.NodeVisitor):
         for alias in node.names:
             name = alias.asname if alias.asname else alias.name
             if name != '*':  # Ignore star imports
-                self.imports[name] = (node.lineno, node.col_offset, f"{node.module}.{alias.name}")
+                full_name = f"{node.module}.{alias.name}" if node.module else alias.name
+                self.imports[name] = (node.lineno, node.col_offset, full_name)
         
         self.generic_visit(node)
     
@@ -260,9 +270,12 @@ class UnusedImportsVisitor(ast.NodeVisitor):
         
         self.generic_visit(node)
     
-    def visit(self, node: ast.AST) -> None:
-        """Override visit to check unused imports at the end."""
-        super().visit(node)
+    def finalize(self) -> None:
+        """Check for unused imports (call after visiting)."""
+        if self._analyzed:
+            return  # Prevent duplicate analysis
+            
+        self._analyzed = True
         
         # Check for unused imports
         for name, (line, col, full_name) in self.imports.items():

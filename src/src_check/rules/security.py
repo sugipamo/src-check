@@ -85,6 +85,10 @@ class HardcodedSecretsVisitor(ast.NodeVisitor):
             if isinstance(target, ast.Name):
                 var_name = target.id.lower()
                 
+                # Skip common metadata fields
+                if target.id in ['__author__', '__email__', '__version__', '__license__']:
+                    continue
+                    
                 # Check if variable name suggests a secret
                 for pattern in self.SECRET_PATTERNS:
                     if pattern in var_name:

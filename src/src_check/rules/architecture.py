@@ -39,6 +39,9 @@ class ArchitectureChecker(BaseChecker):
         
         for visitor in visitors:
             visitor.visit(ast_tree)
+            # Call finalize for visitors that need it
+            if hasattr(visitor, 'finalize'):
+                visitor.finalize()
         
         # Set severity based on findings
         if result.failure_count > 0:
@@ -95,10 +98,8 @@ class CircularImportVisitor(ast.NodeVisitor):
         
         self.generic_visit(node)
     
-    def visit(self, node: ast.AST) -> None:
-        """Override visit to analyze imports at the end."""
-        super().visit(node)
-        
+    def finalize(self) -> None:
+        """Analyze imports after visiting."""
         # Check for deferred imports (potential circular import workaround)
         if self.deferred_imports:
             for import_node in self.deferred_imports:
@@ -112,8 +113,11 @@ class CircularImportVisitor(ast.NodeVisitor):
     
     def _is_module_level(self, node: ast.AST) -> bool:
         """Check if node is at module level."""
-        # This is a simplified check - in practice, we'd need to track scope
-        return False  # For now, treat all imports as potentially deferred
+        # Check if this import is at the top level (not inside a function or class)
+        # We need to traverse up the AST to check parent nodes
+        # For simplicity, we'll check line numbers - module level imports are typically at the beginning
+        # A more robust solution would track the current scope during traversal
+        return node.lineno < 50  # Simple heuristic: imports before line 50 are likely module-level
 
 
 class LayerViolationVisitor(ast.NodeVisitor):
@@ -204,10 +208,8 @@ class CouplingVisitor(ast.NodeVisitor):
         
         self.generic_visit(node)
     
-    def visit(self, node: ast.AST) -> None:
-        """Override visit to check metrics at the end."""
-        super().visit(node)
-        
+    def finalize(self) -> None:
+        """Check metrics after visiting."""
         # Check import count
         if self.imports_count > self.MAX_IMPORTS_PER_MODULE:
             self.result.add_failure(

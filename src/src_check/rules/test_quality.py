@@ -47,6 +47,9 @@ class TestQualityChecker(BaseChecker):
         
         for visitor in visitors:
             visitor.visit(ast_tree)
+            # Call finalize for visitors that need it
+            if hasattr(visitor, 'finalize'):
+                visitor.finalize()
         
         # Set severity based on findings
         if result.failure_count > 0:
@@ -287,10 +290,8 @@ class MissingTestsVisitor(ast.NodeVisitor):
         """Track async public functions."""
         self.visit_FunctionDef(node)
     
-    def visit(self, node: ast.AST) -> None:
-        """Override visit to report at the end."""
-        super().visit(node)
-        
+    def finalize(self) -> None:
+        """Report findings after visiting."""
         # Report if file has many untested functions
         if len(self.public_functions) > 3:
             self.result.add_failure(

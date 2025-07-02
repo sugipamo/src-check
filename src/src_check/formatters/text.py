@@ -123,18 +123,17 @@ class TextFormatter(BaseFormatter):
     def _format_result(self, result: CheckResult) -> str:
         """Format a single check result."""
         icon = self.SEVERITY_ICONS[result.severity]
-        location = f"Line {result.line}" if result.line else "File-level"
         
-        parts = [
-            f"   {icon} [{result.severity.value}]",
-            f"{result.rule_id}:",
-            result.message
-        ]
+        lines = []
+        lines.append(f"   {icon} [{result.severity.value}] {result.title}")
         
-        if result.line:
-            parts.append(f"({location})")
+        # Show each failure location
+        for loc in result.failure_locations:
+            location = f"Line {loc.line}" if loc.line else "File-level"
+            message = loc.message if loc.message else result.title
+            lines.append(f"      - {location}: {message}")
             
-        return " ".join(parts)
+        return "\n".join(lines)
         
     def _create_score_bar(self, score: float) -> str:
         """Create a visual score bar."""

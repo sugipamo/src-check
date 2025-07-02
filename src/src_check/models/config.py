@@ -150,7 +150,7 @@ class SrcCheckConfig:
     @classmethod
     def from_yaml(cls, yaml_path: Union[str, Path]) -> "SrcCheckConfig":
         """Load configuration from YAML file."""
-        with open(yaml_path, "r", encoding="utf-8") as f:
+        with open(yaml_path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         return cls.from_dict(data)
 

@@ -3,7 +3,7 @@
 import ast
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models.check_result import CheckResult, Severity
@@ -28,9 +28,7 @@ class DocstringVisitor(ast.NodeVisitor):
             node.body
             and isinstance(node.body[0], ast.Expr)
             and isinstance(node.body[0].value, ast.Str)
-        ):
-            self.has_module_docstring = True
-        elif node.body and ast.get_docstring(node):
+        ) or (node.body and ast.get_docstring(node)):
             self.has_module_docstring = True
         else:
             self.issues.append((1, "Missing module docstring"))

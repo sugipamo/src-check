@@ -164,12 +164,12 @@ class ConfigLoader:
 
     def _load_yaml(self, path: Path) -> Dict[str, Any]:
         """Load YAML configuration file."""
-        with open(path, "r") as f:
+        with open(path) as f:
             return yaml.safe_load(f) or {}
 
     def _load_json(self, path: Path) -> Dict[str, Any]:
         """Load JSON configuration file."""
-        with open(path, "r") as f:
+        with open(path) as f:
             data: Dict[str, Any] = json.load(f)
             return data
 
@@ -181,7 +181,7 @@ class ConfigLoader:
             logger.warning("toml package not installed, cannot read pyproject.toml")
             return {}
 
-        with open(path, "r") as f:
+        with open(path) as f:
             data = toml.load(f)
 
         # Extract src-check configuration

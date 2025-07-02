@@ -4,7 +4,7 @@ Code quality checkers.
 
 import ast
 import re
-from typing import Optional, Dict, Set, Union, Tuple
+from typing import Dict, Optional, Set, Tuple, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -216,11 +216,7 @@ class ComplexityVisitor(ast.NodeVisitor):
             elif isinstance(child, ast.BoolOp):
                 # Each 'and' or 'or' adds a branch
                 complexity += len(child.values) - 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.Assert):
-                complexity += 1
-            elif isinstance(child, ast.comprehension):
+            elif isinstance(child, ast.ExceptHandler) or isinstance(child, ast.Assert) or isinstance(child, ast.comprehension):
                 complexity += 1
 
         return complexity
@@ -232,7 +228,9 @@ class UnusedImportsVisitor(ast.NodeVisitor):
     def __init__(self, file_path: str, result: CheckResult):
         self.file_path = file_path
         self.result = result
-        self.imports: Dict[str, Tuple[int, int, str]] = {}  # name -> (line, col, full_name)
+        self.imports: Dict[str, Tuple[int, int, str]] = (
+            {}
+        )  # name -> (line, col, full_name)
         self.used_names: Set[str] = set()
         self._analyzed = False  # Flag to prevent duplicate analysis
 

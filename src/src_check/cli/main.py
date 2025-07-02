@@ -10,7 +10,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List, Dict, Union, Optional
+from typing import Dict, List, Optional
 
 from src_check.core.config_loader import ConfigLoader
 from src_check.core.engine import AnalysisEngine
@@ -117,7 +117,9 @@ def main() -> None:
             config = config_loader.load_from_file(config_path)
         else:
             # Try to find config file
-            found_config_path: Optional[Path] = config_loader.find_config_file(Path.cwd())
+            found_config_path: Optional[Path] = config_loader.find_config_file(
+                Path.cwd()
+            )
             if found_config_path:
                 config = config_loader.load_from_file(found_config_path)
             else:

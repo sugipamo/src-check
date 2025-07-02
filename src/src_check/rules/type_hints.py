@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models.check_result import CheckResult, Severity

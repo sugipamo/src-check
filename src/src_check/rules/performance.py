@@ -287,7 +287,9 @@ class PerformanceVisitor(ast.NodeVisitor):
 
         for child in ast.walk(node):
             if isinstance(child, ast.Name):
-                if (isinstance(loop_var, ast.Name) and child.id == loop_var_name) or (isinstance(loop_var, ast.Tuple) and child.id in loop_var_names):
+                if (isinstance(loop_var, ast.Name) and child.id == loop_var_name) or (
+                    isinstance(loop_var, ast.Tuple) and child.id in loop_var_names
+                ):
                     return True
 
         return False

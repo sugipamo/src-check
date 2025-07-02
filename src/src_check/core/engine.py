@@ -48,7 +48,7 @@ class AnalysisEngine:
 
         # Parse the Python file
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             ast_tree = ast.parse(content, filename=str(file_path))
         except Exception as e:

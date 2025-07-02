@@ -4,7 +4,7 @@ Test quality checkers.
 
 import ast
 import re
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -105,7 +105,11 @@ class TestStructureVisitor(ast.NodeVisitor):
                 )
 
             # Check test length (too long tests are hard to understand)
-            if hasattr(node, "end_lineno") and node.end_lineno is not None and node.lineno is not None:
+            if (
+                hasattr(node, "end_lineno")
+                and node.end_lineno is not None
+                and node.lineno is not None
+            ):
                 test_lines = node.end_lineno - node.lineno
                 if test_lines > 50:
                     self.result.add_failure(
@@ -133,7 +137,9 @@ class TestAssertionVisitor(ast.NodeVisitor):
         self.current_test: Optional[str] = None
         self.assertion_count = 0
 
-    def visit_FunctionDef(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
+    def visit_FunctionDef(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
+    ) -> None:
         """Track test functions."""
         if node.name.startswith("test_"):
             old_test = self.current_test
@@ -235,7 +241,9 @@ class TestNamingVisitor(ast.NodeVisitor):
         self.file_path = file_path
         self.result = result
 
-    def visit_FunctionDef(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
+    def visit_FunctionDef(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
+    ) -> None:
         """Check test function naming."""
         if node.name.startswith("test"):
             # Check for generic test names
@@ -329,7 +337,9 @@ class MissingTestsVisitor(ast.NodeVisitor):
                 code_snippet=f"Functions: {', '.join(f.name for f in self.public_functions[:3])}...",
             )
 
-    def _is_simple_accessor(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> bool:
+    def _is_simple_accessor(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
+    ) -> bool:
         """Check if function is a simple getter/setter."""
         # Simple heuristic: function with one line that returns an attribute
         if len(node.body) == 1:

@@ -4,7 +4,7 @@ Architecture quality checkers.
 
 import ast
 from collections import defaultdict
-from typing import Optional, Set, List, Dict, Union
+from typing import Dict, List, Optional, Set, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -74,7 +74,9 @@ class CircularImportVisitor(ast.NodeVisitor):
         self.file_path = file_path
         self.result = result
         self.imports: Set[str] = set()
-        self.deferred_imports: List[Union[ast.Import, ast.ImportFrom]] = []  # Imports inside functions/classes
+        self.deferred_imports: List[Union[ast.Import, ast.ImportFrom]] = (
+            []
+        )  # Imports inside functions/classes
         self.scope_depth = 0  # Track how deep we are in nested scopes
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
@@ -271,7 +273,11 @@ class GodClassVisitor(ast.NodeVisitor):
                         attributes.append(target.id)
 
         # Calculate class size
-        if hasattr(node, "end_lineno") and node.end_lineno is not None and node.lineno is not None:
+        if (
+            hasattr(node, "end_lineno")
+            and node.end_lineno is not None
+            and node.lineno is not None
+        ):
             class_lines = node.end_lineno - node.lineno
         else:
             class_lines = 0

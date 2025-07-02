@@ -1,11 +1,11 @@
 """Dependency health checker for Python projects."""
 
 import ast
-import os
+import importlib.metadata
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
-import importlib.metadata
+from typing import Dict, List, Optional, Set
+
 import toml
 
 from src_check.core.base import BaseChecker
@@ -44,55 +44,55 @@ class DependencyChecker(BaseChecker):
     def check(self, ast_tree: ast.AST, file_path: str) -> Optional[CheckResult]:
         """Check for dependency issues."""
         path = Path(file_path)
-        
+
         # We need to handle dependency checking differently
         # Return None for individual files, as dependency checking is project-wide
         # This checker should be run at the project level separately
-        
+
         # For now, we'll just collect imports from each file
         self._analyze_ast_imports(ast_tree, path)
-        
+
         # Return None as we don't have individual file results
         return None
-    
+
     def check_project(self, project_root: Path) -> List[CheckResult]:
         """Check dependencies at the project level."""
         results = []
-        
+
         # Parse dependency files
         self._parse_dependency_files(project_root)
-        
+
         # Run all dependency checks
         results.extend(self._check_circular_dependencies())
         results.extend(self._check_unused_dependencies())
         results.extend(self._check_unpinned_versions())
         results.extend(self._check_dev_prod_mixing())
-        
+
         return results
-    
+
     def _analyze_ast_imports(self, ast_tree: ast.AST, file_path: Path) -> None:
         """Analyze imports from an AST."""
         file_imports = set()
-        
+
         for node in ast.walk(ast_tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    module_name = alias.name.split('.')[0]
+                    module_name = alias.name.split(".")[0]
                     file_imports.add(module_name)
                     self.project_imports.add(module_name)
             elif isinstance(node, ast.ImportFrom):
                 if node.module:
-                    module_name = node.module.split('.')[0]
+                    module_name = node.module.split(".")[0]
                     file_imports.add(module_name)
                     self.project_imports.add(module_name)
-        
+
         self.file_imports[str(file_path)] = file_imports
-        
+
         # Build import graph for circular dependency detection
         rel_path = str(file_path.name)
         if rel_path not in self.import_graph:
             self.import_graph[rel_path] = set()
-        
+
         for imp in file_imports:
             if self._is_local_import(imp, file_path):
                 self.import_graph[rel_path].add(imp)
@@ -106,12 +106,12 @@ class DependencyChecker(BaseChecker):
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        module_name = alias.name.split('.')[0]
+                        module_name = alias.name.split(".")[0]
                         file_imports.add(module_name)
                         self.project_imports.add(module_name)
                 elif isinstance(node, ast.ImportFrom):
                     if node.module:
-                        module_name = node.module.split('.')[0]
+                        module_name = node.module.split(".")[0]
                         file_imports.add(module_name)
                         self.project_imports.add(module_name)
 
@@ -131,36 +131,36 @@ class DependencyChecker(BaseChecker):
 
     def _is_project_root(self, file_path: Path) -> bool:
         """Check if we're at the project root level."""
-        root_indicators = ['pyproject.toml', 'requirements.txt', 'setup.py']
+        root_indicators = ["pyproject.toml", "requirements.txt", "setup.py"]
         parent = file_path.parent
         return any((parent / indicator).exists() for indicator in root_indicators)
 
     def _parse_dependency_files(self, root_path: Path) -> None:
         """Parse dependency files in the project."""
         # Parse requirements.txt
-        req_file = root_path / 'requirements.txt'
+        req_file = root_path / "requirements.txt"
         if req_file.exists():
             self._parse_requirements_txt(req_file)
 
         # Parse requirements-dev.txt
-        dev_req_file = root_path / 'requirements-dev.txt'
+        dev_req_file = root_path / "requirements-dev.txt"
         if dev_req_file.exists():
             self._parse_requirements_txt(dev_req_file, is_dev=True)
 
         # Parse pyproject.toml
-        pyproject_file = root_path / 'pyproject.toml'
+        pyproject_file = root_path / "pyproject.toml"
         if pyproject_file.exists():
             self._parse_pyproject_toml(pyproject_file)
 
     def _parse_requirements_txt(self, file_path: Path, is_dev: bool = False) -> None:
         """Parse a requirements.txt file."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith('#'):
+                    if line and not line.startswith("#"):
                         # Extract package name and version
-                        match = re.match(r'^([a-zA-Z0-9\-_]+)(.*)$', line)
+                        match = re.match(r"^([a-zA-Z0-9\-_]+)(.*)$", line)
                         if match:
                             pkg_name = match.group(1).lower()
                             version_spec = match.group(2).strip()
@@ -173,24 +173,24 @@ class DependencyChecker(BaseChecker):
     def _parse_pyproject_toml(self, file_path: Path) -> None:
         """Parse a pyproject.toml file."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 data = toml.load(f)
 
             # Parse dependencies
-            if 'project' in data and 'dependencies' in data['project']:
-                for dep in data['project']['dependencies']:
-                    match = re.match(r'^([a-zA-Z0-9\-_]+)(.*)$', dep)
+            if "project" in data and "dependencies" in data["project"]:
+                for dep in data["project"]["dependencies"]:
+                    match = re.match(r"^([a-zA-Z0-9\-_]+)(.*)$", dep)
                     if match:
                         pkg_name = match.group(1).lower()
                         version_spec = match.group(2).strip()
                         self.declared_dependencies[pkg_name] = version_spec
 
             # Parse dev dependencies
-            if 'project' in data and 'optional-dependencies' in data['project']:
-                for group, deps in data['project']['optional-dependencies'].items():
-                    if 'dev' in group.lower() or 'test' in group.lower():
+            if "project" in data and "optional-dependencies" in data["project"]:
+                for group, deps in data["project"]["optional-dependencies"].items():
+                    if "dev" in group.lower() or "test" in group.lower():
                         for dep in deps:
-                            match = re.match(r'^([a-zA-Z0-9\-_]+)(.*)$', dep)
+                            match = re.match(r"^([a-zA-Z0-9\-_]+)(.*)$", dep)
                             if match:
                                 pkg_name = match.group(1).lower()
                                 self.dev_dependencies.add(pkg_name)
@@ -202,10 +202,30 @@ class DependencyChecker(BaseChecker):
         """Check if an import is a local module."""
         # Standard library modules
         stdlib_modules = {
-            'os', 'sys', 'json', 'datetime', 'collections', 'itertools',
-            'functools', 'pathlib', 'typing', 're', 'ast', 'math', 'random',
-            'string', 'textwrap', 'unicodedata', 'codecs', 'io', 'time',
-            'calendar', 'copy', 'pprint', 'enum', 'dataclasses'
+            "os",
+            "sys",
+            "json",
+            "datetime",
+            "collections",
+            "itertools",
+            "functools",
+            "pathlib",
+            "typing",
+            "re",
+            "ast",
+            "math",
+            "random",
+            "string",
+            "textwrap",
+            "unicodedata",
+            "codecs",
+            "io",
+            "time",
+            "calendar",
+            "copy",
+            "pprint",
+            "enum",
+            "dataclasses",
         }
 
         if module_name in stdlib_modules:
@@ -218,8 +238,9 @@ class DependencyChecker(BaseChecker):
         # Check if module exists in the project
         project_root = file_path.parent
         while project_root.parent != project_root:
-            if (project_root / module_name).exists() or \
-               (project_root / f"{module_name}.py").exists():
+            if (project_root / module_name).exists() or (
+                project_root / f"{module_name}.py"
+            ).exists():
                 return True
             project_root = project_root.parent
 
@@ -259,12 +280,12 @@ class DependencyChecker(BaseChecker):
                         checker_name=self.name,
                         severity=Severity.HIGH,
                         category=self.category,
-                        rule_id="DEP001"
+                        rule_id="DEP001",
                     )
                     result.add_failure(
                         file_path=module,
                         line=1,
-                        message=f"Circular dependency: {' -> '.join(cycle)}"
+                        message=f"Circular dependency: {' -> '.join(cycle)}",
                     )
                     results.append(result)
 
@@ -279,10 +300,10 @@ class DependencyChecker(BaseChecker):
         for imp in self.project_imports:
             # Handle common import name to package name mappings
             package_mapping = {
-                'PIL': 'pillow',
-                'cv2': 'opencv-python',
-                'sklearn': 'scikit-learn',
-                'yaml': 'pyyaml',
+                "PIL": "pillow",
+                "cv2": "opencv-python",
+                "sklearn": "scikit-learn",
+                "yaml": "pyyaml",
             }
             package_name = package_mapping.get(imp, imp).lower()
             used_packages.add(package_name)
@@ -293,21 +314,21 @@ class DependencyChecker(BaseChecker):
                 # Check if it might be imported with a different name
                 try:
                     metadata = importlib.metadata.distribution(dep)
-                    top_level = metadata.read_text('top_level.txt')
+                    top_level = metadata.read_text("top_level.txt")
                     if top_level:
-                        modules = top_level.strip().split('\n')
+                        modules = top_level.strip().split("\n")
                         if not any(mod in self.project_imports for mod in modules):
                             result = CheckResult(
                                 title="Unused dependency detected",
                                 checker_name=self.name,
                                 severity=Severity.MEDIUM,
                                 category=self.category,
-                                rule_id="DEP002"
+                                rule_id="DEP002",
                             )
                             result.add_failure(
                                 file_path="requirements.txt",
                                 line=1,
-                                message=f"Unused dependency: {dep}"
+                                message=f"Unused dependency: {dep}",
                             )
                             results.append(result)
                 except Exception:
@@ -319,12 +340,12 @@ class DependencyChecker(BaseChecker):
                             checker_name=self.name,
                             severity=Severity.MEDIUM,
                             category=self.category,
-                            rule_id="DEP002"
+                            rule_id="DEP002",
                         )
                         result.add_failure(
                             file_path="requirements.txt",
                             line=1,
-                            message=f"Unused dependency: {dep}"
+                            message=f"Unused dependency: {dep}",
                         )
                         results.append(result)
 
@@ -335,32 +356,34 @@ class DependencyChecker(BaseChecker):
         results = []
 
         for dep, version_spec in self.declared_dependencies.items():
-            if not version_spec or version_spec == '*':
+            if not version_spec or version_spec == "*":
                 result = CheckResult(
                     title="Unpinned dependency version",
                     checker_name=self.name,
                     severity=Severity.MEDIUM,
                     category=self.category,
-                    rule_id="DEP006"
+                    rule_id="DEP006",
                 )
                 result.add_failure(
                     file_path="requirements.txt",
                     line=1,
-                    message=f"Unpinned dependency version: {dep}"
+                    message=f"Unpinned dependency version: {dep}",
                 )
                 results.append(result)
-            elif not any(op in version_spec for op in ['==', '>=', '<=', '>', '<', '~=']):
+            elif not any(
+                op in version_spec for op in ["==", ">=", "<=", ">", "<", "~="]
+            ):
                 result = CheckResult(
                     title="Loosely pinned dependency",
                     checker_name=self.name,
                     severity=Severity.MEDIUM,
                     category=self.category,
-                    rule_id="DEP006"
+                    rule_id="DEP006",
                 )
                 result.add_failure(
                     file_path="requirements.txt",
                     line=1,
-                    message=f"Loosely pinned dependency: {dep}{version_spec}"
+                    message=f"Loosely pinned dependency: {dep}{version_spec}",
                 )
                 results.append(result)
 
@@ -372,9 +395,24 @@ class DependencyChecker(BaseChecker):
 
         # Common dev/test packages
         dev_packages = {
-            'pytest', 'unittest', 'mock', 'nose', 'tox', 'coverage',
-            'pytest-cov', 'black', 'flake8', 'pylint', 'mypy', 'isort',
-            'pre-commit', 'sphinx', 'mkdocs', 'wheel', 'twine', 'bumpversion'
+            "pytest",
+            "unittest",
+            "mock",
+            "nose",
+            "tox",
+            "coverage",
+            "pytest-cov",
+            "black",
+            "flake8",
+            "pylint",
+            "mypy",
+            "isort",
+            "pre-commit",
+            "sphinx",
+            "mkdocs",
+            "wheel",
+            "twine",
+            "bumpversion",
         }
 
         # Check if dev packages are in main dependencies
@@ -385,12 +423,12 @@ class DependencyChecker(BaseChecker):
                     checker_name=self.name,
                     severity=Severity.MEDIUM,
                     category=self.category,
-                    rule_id="DEP007"
+                    rule_id="DEP007",
                 )
                 result.add_failure(
                     file_path="requirements.txt",
                     line=1,
-                    message=f"Development dependency in production: {dep}"
+                    message=f"Development dependency in production: {dep}",
                 )
                 results.append(result)
 
@@ -403,7 +441,7 @@ class DependencyChecker(BaseChecker):
             "unused_dependencies": 0,
             "unpinned_versions": 0,
             "dev_prod_mixing": 0,
-            "total_issues": len(results)
+            "total_issues": len(results),
         }
 
         for result in results:

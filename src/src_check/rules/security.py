@@ -233,9 +233,7 @@ class DangerousFunctionsVisitor(ast.NodeVisitor):
 
     def _is_true(self, node: Union[ast.expr, ast.AST]) -> bool:
         """Check if a node represents True."""
-        if isinstance(node, ast.Constant):
-            return node.value is True
-        elif isinstance(node, ast.NameConstant):
+        if isinstance(node, ast.Constant) or isinstance(node, ast.NameConstant):
             return node.value is True
         return False
 

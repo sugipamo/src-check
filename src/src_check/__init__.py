@@ -25,10 +25,10 @@ VERSION_INFO = tuple(map(int, __version__.split(".")))
 # from .core import CheckResult, KPIScore, FailureLocation
 
 __all__ = [
-    "__version__",
+    "VERSION_INFO",
     "__author__",
     "__email__",
-    "VERSION_INFO",
+    "__version__",
     # "CheckResult",
     # "KPIScore",
     # "FailureLocation",

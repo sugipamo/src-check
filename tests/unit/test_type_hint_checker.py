@@ -1,12 +1,9 @@
 """Tests for TypeHintChecker."""
 
 import ast
-import tempfile
-from pathlib import Path
 
 import pytest
 
-from src_check.models.check_result import Severity
 from src_check.rules.type_hints import TypeHintChecker
 
 

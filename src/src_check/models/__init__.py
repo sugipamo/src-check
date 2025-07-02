@@ -7,12 +7,12 @@ from src_check.models.config import OutputConfig, RuleConfig, SrcCheckConfig
 from src_check.models.kpi_score import CategoryScore, KPIScore
 
 __all__ = [
+    "CategoryScore",
     "CheckResult",
     "FailureLocation",
-    "Severity",
     "KPIScore",
-    "CategoryScore",
-    "SrcCheckConfig",
-    "RuleConfig",
     "OutputConfig",
+    "RuleConfig",
+    "Severity",
+    "SrcCheckConfig",
 ]

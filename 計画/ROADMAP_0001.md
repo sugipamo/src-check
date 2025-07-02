@@ -5,11 +5,11 @@
 
 ## 📅 現在の状況
 
-### ✅ v0.1.0 - Foundation 完了
+### ✅ v0.1.0 - Foundation 完了 (注: pyproject.tomlのバージョンは1.0.0と記載されているが、実際はv0.1.0相当)
 - 基本機能の実装完了
-- ✅ 6つのチェッカー実装済み (security, code_quality, architecture, test_quality, documentation, type_hints)
+- ✅ 7つのチェッカー実装済み (security, code_quality, architecture, test_quality, documentation, type_hints, performance)
 - ✅ CLI統合完了 (src-check, src-check-kpi コマンド)
-- ✅ 全55テスト合格、カバレッジ82.74%達成
+- ✅ 全68テスト合格、カバレッジ83%達成
 - ✅ プラグインシステム基盤完成
 
 ## 🚀 次期リリース計画
@@ -69,8 +69,8 @@
 ## 📊 品質指標
 
 ### 現在の状況
-- テストカバレッジ: 83.07% ✅
-- テスト数: 66 (全て合格) ✅
+- テストカバレッジ: 83% ✅
+- テスト数: 68 (全て合格) ✅
 - チェッカー数: 7/10 実装済み
 - ドキュメント化率: 約60%
 - 型アノテーション: 100% ✅ (mypyエラー0)
@@ -138,6 +138,20 @@ pip install types-PyYAML types-toml
 - 業界別ルールセット
 - エンタープライズサポート
 
+## 🔧 追加検討事項
+
+### CI/CD統合
+- GitHub Actions設定テンプレート
+- GitLab CI設定テンプレート
+- pre-commitフック設定
+- 自動PR品質チェック
+
+### 設定ファイル対応
+- .src-check.yaml設定ファイルのサポート
+- 除外パターンの設定
+- カスタムルールの設定
+- チーム共有設定の仕組み
+
 ## 📝 直近の実装タスク
 
 ### 実装済みチェッカー (7種類)
@@ -170,4 +184,4 @@ pip install types-PyYAML types-toml
 
 ---
 
-更新日: 2025-07-02 17:10
+更新日: 2025-07-02 17:21

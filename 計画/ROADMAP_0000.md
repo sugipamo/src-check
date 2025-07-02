@@ -9,16 +9,20 @@
 **テーマ**: 基本機能の動作確認
 - ✅ コアデータモデル (BaseChecker, CheckResult, Config, KpiScore実装済み)
 - ✅ 4つの基本チェッカー (security, code_quality, architecture, test_quality実装済み)
-- ❌ プラグインレジストリ (未実装)
-- ✅ 基本的なCLI統合 (main.py, kpi.py実装済み、ただし実際の処理は未完成)
+- ✅ プラグインレジストリ (PluginRegistry実装済み、discover_plugins機能付き)
+- ✅ 基本的なCLI統合 (main.py, kpi.py実装済み)
+- ✅ AnalysisEngine実装済み (ファイル・ディレクトリ解析機能)
+- ✅ KPICalculator実装済み (スコア計算ロジック)
+- ✅ ConfigLoader実装済み (YAML/JSON/pyproject.toml対応)
+- ✅ 3つの出力フォーマッター実装済み (text/json/markdown)
 - ⬜ 簡単な使用例
 
 ### v0.2.0 - Functional (4週間後)
 **テーマ**: 実用的なツールに
-- ⬜ KPIスコアリング実装
-- ⬜ 10種類のチェッカー
-- ⬜ 設定ファイル対応
-- ⬜ 3つの出力形式（text/json/markdown）
+- ✅ KPIスコアリング実装 (KPICalculator完成)
+- ⬜ 10種類のチェッカー (現在4種類実装済み)
+- ✅ 設定ファイル対応 (ConfigLoader実装済み、.src-check.yaml/json/pyproject.toml対応)
+- ✅ 3つの出力形式（text/json/markdown）
 - ⬜ パフォーマンス基準値
 
 ### v0.3.0 - Quality (6週間後)
@@ -62,18 +66,18 @@
 ## 🚀 マイルストーン達成条件
 
 ### v0.1.0 チェックリスト
-- [ ] `src-check .` が動作する (CLIは存在するがプレースホルダー出力)
+- [x] `src-check .` が動作する (main.pyでAnalysisEngine統合済み、ただし1つのテストが失敗中)
 - [x] 4種類のチェッカーが問題を検出できる (テストで確認済み)
-- [ ] 基本的な結果表示 (未実装)
+- [x] 基本的な結果表示 (3つのフォーマッター実装済み)
 - [ ] README.mdの使用例が動く
 - [x] pip install -e . が成功する (pyproject.toml設定済み)
 
 ### v0.2.0 チェックリスト  
-- [ ] KPIスコアが表示される
-- [ ] --format json が動作する
-- [ ] .src-check.yaml が読み込まれる
+- [x] KPIスコアが表示される (KPICalculator実装済み)
+- [x] --format json が動作する (JsonFormatter実装済み)
+- [x] .src-check.yaml が読み込まれる (ConfigLoader実装済み)
 - [ ] 1000行のプロジェクトを10秒以内で処理
-- [ ] 10種類のチェッカーが稼働
+- [ ] 10種類のチェッカーが稼働 (現在4種類)
 
 ### v1.0.0 チェックリスト
 - [ ] pip install src-check が動作
@@ -99,20 +103,33 @@
 ## 📝 即時実装が必要なタスク
 
 ### CLI統合の完成
-- [ ] AnalysisEngineの実装 (チェッカーを実行し結果を集約)
-- [ ] KPICalculatorの実装 (KPIスコア計算ロジック)
-- [ ] OutputFormatterの実装 (text/json/markdown形式の出力)
-- [ ] ConfigLoaderの実装 (.src-check.yamlの読み込み)
+- [x] AnalysisEngineの実装 (チェッカーを実行し結果を集約) ✅完了
+- [x] KPICalculatorの実装 (KPIスコア計算ロジック) ✅完了
+- [x] OutputFormatterの実装 (text/json/markdown形式の出力) ✅完了
+- [x] ConfigLoaderの実装 (.src-check.yamlの読み込み) ✅完了
 
 ### プラグインシステム
-- [ ] PluginRegistryの基本実装
-- [ ] チェッカーの自動登録機能
-- [ ] プラグインディスカバリー機能
+- [x] PluginRegistryの基本実装 ✅完了
+- [x] チェッカーの自動登録機能 ✅完了
+- [x] プラグインディスカバリー機能 ✅完了
 
 ### ドキュメント整備
 - [ ] README.mdに実際に動く使用例を追加
 - [ ] 各チェッカーの詳細ドキュメント
 - [ ] インストール手順の整備
+
+### バグ修正と改善
+- [ ] test_main_cli_basic_executionテストの失敗を修正
+- [ ] CLIの実際の動作確認と修正
+- [ ] エラーハンドリングの改善
+
+### 追加チェッカーの実装
+- [ ] DocumentationChecker (docstring品質チェック)
+- [ ] PerformanceChecker (パフォーマンス問題検出)
+- [ ] DependencyChecker (依存関係の健全性チェック)
+- [ ] LicenseChecker (ライセンス整合性チェック)
+- [ ] DeprecationChecker (廃止予定機能の使用検出)
+- [ ] TypeHintChecker (型ヒントの充実度チェック)
 
 ## 🎨 将来の可能性
 

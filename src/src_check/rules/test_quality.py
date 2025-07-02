@@ -284,13 +284,13 @@ class TestNamingVisitor(ast.NodeVisitor):
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Check test class naming."""
         if node.name.startswith("Test") and node.name in ["Test", "Tests", "Testing"]:
-                self.result.add_failure(
-                    file_path=self.file_path,
-                    line=node.lineno,
-                    column=node.col_offset,
-                    message=f"Generic test class name: '{node.name}' - use descriptive names",
-                    code_snippet=f"class {node.name}:",
-                )
+            self.result.add_failure(
+                file_path=self.file_path,
+                line=node.lineno,
+                column=node.col_offset,
+                message=f"Generic test class name: '{node.name}' - use descriptive names",
+                code_snippet=f"class {node.name}:",
+            )
 
         self.generic_visit(node)
 
@@ -307,7 +307,7 @@ class MissingTestsVisitor(ast.NodeVisitor):
         """Track public functions."""
         # Skip private functions and special methods
         if not node.name.startswith("_") and not self._is_simple_accessor(node):
-                self.public_functions.append(node)
+            self.public_functions.append(node)
 
         self.generic_visit(node)
 
@@ -315,7 +315,7 @@ class MissingTestsVisitor(ast.NodeVisitor):
         """Track async public functions."""
         # Skip private functions and special methods
         if not node.name.startswith("_") and not self._is_simple_accessor(node):
-                self.public_functions.append(node)
+            self.public_functions.append(node)
 
         self.generic_visit(node)
 
@@ -338,6 +338,8 @@ class MissingTestsVisitor(ast.NodeVisitor):
         # Simple heuristic: function with one line that returns an attribute
         if len(node.body) == 1:
             stmt = node.body[0]
-            if isinstance(stmt, ast.Return) and isinstance(stmt.value, (ast.Attribute, ast.Name)):
+            if isinstance(stmt, ast.Return) and isinstance(
+                stmt.value, (ast.Attribute, ast.Name)
+            ):
                 return True
         return False

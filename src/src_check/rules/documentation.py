@@ -99,13 +99,17 @@ class DocstringVisitor(ast.NodeVisitor):
             has_params = len(params) > 0 or node.args.vararg or node.args.kwarg
 
         # Check for parameter documentation
-        if has_params and params and not self._has_param_documentation(docstring, params):
-                self.issues.append(
-                    (
-                        node.lineno,
-                        f"Function '{node.name}' has parameters but missing parameter documentation",
-                    )
+        if (
+            has_params
+            and params
+            and not self._has_param_documentation(docstring, params)
+        ):
+            self.issues.append(
+                (
+                    node.lineno,
+                    f"Function '{node.name}' has parameters but missing parameter documentation",
                 )
+            )
 
         # Check for return documentation (skip None returns)
         if has_return and node.name != "__init__":

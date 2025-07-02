@@ -256,12 +256,14 @@ class DependencyChecker(BaseChecker):
             path.append(module)
 
             for neighbor in self.import_graph.get(module, []):
-                if neighbor not in visited and (cycle := has_cycle(neighbor, path.copy())):
+                if neighbor not in visited and (
+                    cycle := has_cycle(neighbor, path.copy())
+                ):
                     return cycle
                 elif neighbor in rec_stack:
                     # Found a cycle
                     cycle_start = path.index(neighbor)
-                    return path[cycle_start:] + [neighbor]
+                    return [*path[cycle_start:], neighbor]
 
             path.pop()
             rec_stack.remove(module)

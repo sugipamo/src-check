@@ -167,7 +167,10 @@ class DeprecationVisitor(ast.NodeVisitor):
         # DEPR001: collectionsの古いAPI
         if node.module == "collections" and node.names:
             for alias in node.names:
-                if isinstance(alias.name, str) and alias.name in DeprecationChecker.DEPRECATED_COLLECTIONS:
+                if (
+                    isinstance(alias.name, str)
+                    and alias.name in DeprecationChecker.DEPRECATED_COLLECTIONS
+                ):
                     replacement = DeprecationChecker.DEPRECATED_COLLECTIONS[alias.name]
                     self.add_failure(
                         node,
@@ -176,9 +179,16 @@ class DeprecationVisitor(ast.NodeVisitor):
                     )
 
         # DEPR005: typingモジュールの古い書き方（Python 3.9+）
-        if node.module == "typing" and sys.version_info >= (3, 9) and not self.checker.has_future_annotations:
+        if (
+            node.module == "typing"
+            and sys.version_info >= (3, 9)
+            and not self.checker.has_future_annotations
+        ):
             for alias in node.names:
-                if isinstance(alias.name, str) and alias.name in DeprecationChecker.DEPRECATED_TYPING:
+                if (
+                    isinstance(alias.name, str)
+                    and alias.name in DeprecationChecker.DEPRECATED_TYPING
+                ):
                     replacement = DeprecationChecker.DEPRECATED_TYPING[alias.name]
                     self.add_failure(
                         node,
@@ -228,7 +238,11 @@ class DeprecationVisitor(ast.NodeVisitor):
         """関数呼び出しを訪問."""
         # DEPR002: warnings.warnでDeprecationWarningを発行している関数の呼び出し
         if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name) and node.func.value.id == "warnings" and node.func.attr == "warn":
+            if (
+                isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "warnings"
+                and node.func.attr == "warn"
+            ):
                 # DeprecationWarningを確認
                 for arg in node.args:
                     if isinstance(arg, ast.Name) and arg.id == "DeprecationWarning":
@@ -236,7 +250,11 @@ class DeprecationVisitor(ast.NodeVisitor):
                         pass
 
             # DEPR004: asyncio.ensure_futureの使用
-            if isinstance(node.func.value, ast.Name) and node.func.value.id == "asyncio" and node.func.attr == "ensure_future":
+            if (
+                isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "asyncio"
+                and node.func.attr == "ensure_future"
+            ):
                 self.add_failure(
                     node,
                     "DEPR004: 'asyncio.ensure_future' は 'asyncio.create_task' を使用することが推奨されます",
@@ -244,12 +262,16 @@ class DeprecationVisitor(ast.NodeVisitor):
                 )
 
         # DEPR003: 文字列フォーマットの古い書き方
-        if isinstance(node.func, ast.Attribute) and node.func.attr == "__mod__" and isinstance(node.func.value, ast.Str):
-                self.add_failure(
-                    node,
-                    "DEPR003: '%' による文字列フォーマットは古い書き方です。f-stringまたは.format()を使用してください",
-                    Severity.INFO,
-                )
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "__mod__"
+            and isinstance(node.func.value, ast.Str)
+        ):
+            self.add_failure(
+                node,
+                "DEPR003: '%' による文字列フォーマットは古い書き方です。f-stringまたは.format()を使用してください",
+                Severity.INFO,
+            )
 
         self.generic_visit(node)
 

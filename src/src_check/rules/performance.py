@@ -71,19 +71,25 @@ class PerformanceVisitor(ast.NodeVisitor):
         self._check_string_concatenation_in_loop(node)
 
         # Check for repeated function calls in loop condition
-        if isinstance(node.iter, ast.Call) and isinstance(node.iter.func, ast.Name) and node.iter.func.id == "range" and node.iter.args and isinstance(node.iter.args[0], ast.Call):
-            # Check if it's range(len(func_call())) - this is bad
-            if isinstance(node.iter.args[0].func, ast.Name) and node.iter.args[0].func.id == "len" and node.iter.args[0].args and isinstance(node.iter.args[0].args[0], ast.Call):
-                self.issues.append(
-                    FailureLocation(
-                        file_path=self.file_path,
-                        line=node.lineno,
-                        column=node.col_offset,
-                        message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
-                    )
+        if (
+            isinstance(node.iter, ast.Call)
+            and isinstance(node.iter.func, ast.Name)
+            and node.iter.func.id == "range"
+            and node.iter.args
+            and isinstance(node.iter.args[0], ast.Call)
+            and (
+                (
+                    isinstance(node.iter.args[0].func, ast.Name)
+                    and node.iter.args[0].func.id == "len"
+                    and node.iter.args[0].args
+                    and isinstance(node.iter.args[0].args[0], ast.Call)
                 )
-            # Check if it's range(func_call()) but NOT range(len(...))
-            elif not (isinstance(node.iter.args[0].func, ast.Name) and node.iter.args[0].func.id == "len"):
+                or not (
+                    isinstance(node.iter.args[0].func, ast.Name)
+                    and node.iter.args[0].func.id == "len"
+                )
+            )
+        ):
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
@@ -116,17 +122,21 @@ class PerformanceVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node: ast.AugAssign) -> None:
         """Check for inefficient augmented assignments in loops."""
-        if self.loop_depth > 0 and isinstance(node.op, ast.Add):
-            if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name) and node.value.func.id == "str":
-                self.issues.append(
-                    FailureLocation(
-                        file_path=self.file_path,
-                        line=node.lineno,
-                        column=node.col_offset,
-                        message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
-                    )
+        if (
+            self.loop_depth > 0
+            and isinstance(node.op, ast.Add)
+            and (
+                (
+                    isinstance(node.value, ast.Call)
+                    and isinstance(node.value.func, ast.Name)
+                    and node.value.func.id == "str"
                 )
-            elif isinstance(node.value, (ast.Constant, ast.BinOp)) and self._is_string_type(node.value):
+                or (
+                    isinstance(node.value, (ast.Constant, ast.BinOp))
+                    and self._is_string_type(node.value)
+                )
+            )
+        ):
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
@@ -140,15 +150,19 @@ class PerformanceVisitor(ast.NodeVisitor):
 
     def visit_BinOp(self, node: ast.BinOp) -> None:
         """Check for inefficient string concatenation."""
-        if self.loop_depth > 0 and isinstance(node.op, ast.Add) and (self._is_string_type(node.left) or self._is_string_type(node.right)):
-                self.issues.append(
-                    FailureLocation(
-                        file_path=self.file_path,
-                        line=node.lineno,
-                        column=node.col_offset,
-                        message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
-                    )
+        if (
+            self.loop_depth > 0
+            and isinstance(node.op, ast.Add)
+            and (self._is_string_type(node.left) or self._is_string_type(node.right))
+        ):
+            self.issues.append(
+                FailureLocation(
+                    file_path=self.file_path,
+                    line=node.lineno,
+                    column=node.col_offset,
+                    message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
                 )
+            )
 
         self.generic_visit(node)
 
@@ -175,28 +189,41 @@ class PerformanceVisitor(ast.NodeVisitor):
     def visit_Call(self, node: ast.Call) -> None:
         """Check for performance issues in function calls."""
         # Check for repeated list() conversions
-        if isinstance(node.func, ast.Name) and node.func.id == "list" and node.args and isinstance(node.args[0], ast.Call):
+        if (
+            isinstance(node.func, ast.Name)
+            and node.func.id == "list"
+            and node.args
+            and isinstance(node.args[0], ast.Call)
+        ):
             inner_call = node.args[0]
-            if isinstance(inner_call.func, ast.Name) and inner_call.func.id in ["list", "tuple"]:
-                        self.issues.append(
-                            FailureLocation(
-                                file_path=self.file_path,
-                                line=node.lineno,
-                                column=node.col_offset,
-                                message=f"[PERF005] Unnecessary type conversion: list({inner_call.func.id}(...)) is redundant",
-                            )
-                        )
-
-        # Check for global function calls in tight loops
-        if self.loop_depth > 0 and isinstance(node.func, ast.Name) and node.func.id in ["len", "sum", "max", "min"] and self._is_loop_invariant(node):
+            if isinstance(inner_call.func, ast.Name) and inner_call.func.id in [
+                "list",
+                "tuple",
+            ]:
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
                         line=node.lineno,
                         column=node.col_offset,
-                        message=f"[PERF006] Loop-invariant call to {node.func.id}() could be moved outside the loop. Consider computing this value before the loop",
+                        message=f"[PERF005] Unnecessary type conversion: list({inner_call.func.id}(...)) is redundant",
                     )
                 )
+
+        # Check for global function calls in tight loops
+        if (
+            self.loop_depth > 0
+            and isinstance(node.func, ast.Name)
+            and node.func.id in ["len", "sum", "max", "min"]
+            and self._is_loop_invariant(node)
+        ):
+            self.issues.append(
+                FailureLocation(
+                    file_path=self.file_path,
+                    line=node.lineno,
+                    column=node.col_offset,
+                    message=f"[PERF006] Loop-invariant call to {node.func.id}() could be moved outside the loop. Consider computing this value before the loop",
+                )
+            )
 
         self.generic_visit(node)
 
@@ -204,11 +231,11 @@ class PerformanceVisitor(ast.NodeVisitor):
         """Check for computations that could be moved outside the loop."""
         # This is a simplified check - a full implementation would be more complex
         for stmt in node.body:
-            if isinstance(stmt, ast.Assign):
-                # Check if the assignment doesn't depend on the loop variable
-                if not self._uses_loop_variable(stmt.value, node.target):
-                    # Check if it's a computation (not just a simple value)
-                    if isinstance(stmt.value, (ast.BinOp, ast.Call)):
+            if (
+                isinstance(stmt, ast.Assign)
+                and not self._uses_loop_variable(stmt.value, node.target)
+                and isinstance(stmt.value, (ast.BinOp, ast.Call))
+            ):
                         self.issues.append(
                             FailureLocation(
                                 file_path=self.file_path,
@@ -221,24 +248,31 @@ class PerformanceVisitor(ast.NodeVisitor):
     def _check_string_concatenation_in_loop(self, node: ast.For) -> None:
         """Check for string concatenation patterns in loops."""
         for stmt in ast.walk(node):
-            if isinstance(stmt, ast.AugAssign) and isinstance(stmt.op, ast.Add):
-                # Check if we're doing += on a string
-                if isinstance(stmt.target, ast.Name):
+            if (
+                isinstance(stmt, ast.AugAssign) 
+                and isinstance(stmt.op, ast.Add)
+                and isinstance(stmt.target, ast.Name)
+            ):
                     # This is a heuristic - we can't always know the type
                     # but we can check for common patterns
                     for parent_stmt in node.body:
-                        if isinstance(parent_stmt, ast.Assign) and any(
-                            isinstance(t, ast.Name) and t.id == stmt.target.id
-                            for t in parent_stmt.targets
-                        ) and isinstance(parent_stmt.value, ast.Constant) and isinstance(parent_stmt.value.value, str):
-                                    self.issues.append(
-                                        FailureLocation(
-                                            file_path=self.file_path,
-                                            line=stmt.lineno,
-                                            column=stmt.col_offset,
-                                            message="[PERF008] String concatenation with += in loop is inefficient. Use list.append() and ''.join() for better performance",
-                                        )
-                                    )
+                        if (
+                            isinstance(parent_stmt, ast.Assign)
+                            and any(
+                                isinstance(t, ast.Name) and t.id == stmt.target.id
+                                for t in parent_stmt.targets
+                            )
+                            and isinstance(parent_stmt.value, ast.Constant)
+                            and isinstance(parent_stmt.value.value, str)
+                        ):
+                            self.issues.append(
+                                FailureLocation(
+                                    file_path=self.file_path,
+                                    line=stmt.lineno,
+                                    column=stmt.col_offset,
+                                    message="[PERF008] String concatenation with += in loop is inefficient. Use list.append() and ''.join() for better performance",
+                                )
+                            )
 
     def _is_string_type(self, node: ast.AST) -> bool:
         """Heuristic to check if a node is likely a string."""

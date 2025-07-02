@@ -48,8 +48,8 @@ src-check-kpi = "src_check.cli.kpi:main"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/src-check"
+Documentation = "https://github.com/yourusername/src-check#readme"
 Repository = "https://github.com/yourusername/src-check"
-Documentation = "https://github.com/yourusername/src-check/wiki"
 Issues = "https://github.com/yourusername/src-check/issues"
 Changelog = "https://github.com/yourusername/src-check/blob/main/CHANGELOG.md"
 

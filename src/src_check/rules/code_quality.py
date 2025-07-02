@@ -75,14 +75,18 @@ class NamingConventionVisitor(ast.NodeVisitor):
             self.generic_visit(node)
             return
 
-        if not self._is_snake_case(node.name) and not node.name.startswith("_") and not (node.name.startswith("__") and node.name.endswith("__")):
-                self.result.add_failure(
-                    file_path=self.file_path,
-                    line=node.lineno,
-                    column=node.col_offset,
-                    message=f"Function '{node.name}' should use snake_case naming",
-                    code_snippet=f"def {node.name}(...)",
-                )
+        if (
+            not self._is_snake_case(node.name)
+            and not node.name.startswith("_")
+            and not (node.name.startswith("__") and node.name.endswith("__"))
+        ):
+            self.result.add_failure(
+                file_path=self.file_path,
+                line=node.lineno,
+                column=node.col_offset,
+                message=f"Function '{node.name}' should use snake_case naming",
+                code_snippet=f"def {node.name}(...)",
+            )
 
         self.generic_visit(node)
 
@@ -117,14 +121,19 @@ class NamingConventionVisitor(ast.NodeVisitor):
                         code_snippet=f"{target.id} = ...",
                     )
                 # Check regular variables
-                elif not target.id.isupper() and not self._is_snake_case(target.id) and len(target.id) > 1 and not target.id.startswith("_"):
-                        self.result.add_failure(
-                            file_path=self.file_path,
-                            line=node.lineno,
-                            column=node.col_offset,
-                            message=f"Variable '{target.id}' should use snake_case naming",
-                            code_snippet=f"{target.id} = ...",
-                        )
+                elif (
+                    not target.id.isupper()
+                    and not self._is_snake_case(target.id)
+                    and len(target.id) > 1
+                    and not target.id.startswith("_")
+                ):
+                    self.result.add_failure(
+                        file_path=self.file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        message=f"Variable '{target.id}' should use snake_case naming",
+                        code_snippet=f"{target.id} = ...",
+                    )
 
         self.generic_visit(node)
 
@@ -160,14 +169,18 @@ class PrintStatementVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> None:
         """Check for print function calls."""
-        if isinstance(node.func, ast.Name) and node.func.id == "print" and not self.in_main:
-                self.result.add_failure(
-                    file_path=self.file_path,
-                    line=node.lineno,
-                    column=node.col_offset,
-                    message="Use logging instead of print statements",
-                    code_snippet="print(...)",
-                )
+        if (
+            isinstance(node.func, ast.Name)
+            and node.func.id == "print"
+            and not self.in_main
+        ):
+            self.result.add_failure(
+                file_path=self.file_path,
+                line=node.lineno,
+                column=node.col_offset,
+                message="Use logging instead of print statements",
+                code_snippet="print(...)",
+            )
 
         self.generic_visit(node)
 
@@ -271,11 +284,15 @@ class UnusedImportsVisitor(ast.NodeVisitor):
 
         # Check for unused imports
         for name, (line, col, full_name) in self.imports.items():
-            if name not in self.used_names and name not in ["__future__", "__all__"] and not name.startswith("_"):
-                    self.result.add_failure(
-                        file_path=self.file_path,
-                        line=line,
-                        column=col,
-                        message=f"Unused import: {full_name}",
-                        code_snippet=f"import {full_name}",
-                    )
+            if (
+                name not in self.used_names
+                and name not in ["__future__", "__all__"]
+                and not name.startswith("_")
+            ):
+                self.result.add_failure(
+                    file_path=self.file_path,
+                    line=line,
+                    column=col,
+                    message=f"Unused import: {full_name}",
+                    code_snippet=f"import {full_name}",
+                )

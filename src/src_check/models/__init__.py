@@ -8,7 +8,7 @@ from src_check.models.kpi_score import CategoryScore, KPIScore
 
 __all__ = [
     "CheckResult",
-    "FailureLocation", 
+    "FailureLocation",
     "Severity",
     "KPIScore",
     "CategoryScore",

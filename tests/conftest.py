@@ -15,12 +15,12 @@ sys.path.insert(0, str(src_path))
 @pytest.fixture
 def temp_python_file(tmp_path):
     """Create a temporary Python file for testing."""
-    
+
     def _create_file(content: str, name: str = "test_file.py"):
         file_path = tmp_path / name
         file_path.write_text(content)
         return file_path
-    
+
     return _create_file
 
 
@@ -28,7 +28,7 @@ def temp_python_file(tmp_path):
 def sample_ast_tree():
     """Provide a sample AST tree for testing."""
     import ast
-    
+
     code = '''
 def hello_world():
     """Sample function."""
@@ -71,31 +71,37 @@ def project_structure(tmp_path):
     (tmp_path / "src").mkdir()
     (tmp_path / "tests").mkdir()
     (tmp_path / "docs").mkdir()
-    
+
     # Create Python files
     (tmp_path / "src" / "__init__.py").write_text("")
-    (tmp_path / "src" / "main.py").write_text('''
+    (tmp_path / "src" / "main.py").write_text(
+        '''
 def main():
     """Main entry point."""
     print("Hello from main")
-    
+
 if __name__ == "__main__":
     main()
-''')
-    
-    (tmp_path / "src" / "utils.py").write_text('''
+'''
+    )
+
+    (tmp_path / "src" / "utils.py").write_text(
+        '''
 import os
 
 def get_path():
     """Get current path."""
     return os.getcwd()
-''')
-    
+'''
+    )
+
     # Create test file
-    (tmp_path / "tests" / "test_main.py").write_text('''
+    (tmp_path / "tests" / "test_main.py").write_text(
+        '''
 def test_main():
     """Test main function."""
     assert True
-''')
-    
+'''
+    )
+
     return tmp_path

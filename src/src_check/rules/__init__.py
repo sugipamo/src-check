@@ -9,7 +9,7 @@ from src_check.rules.test_quality import TestQualityChecker
 
 __all__ = [
     "SecurityChecker",
-    "CodeQualityChecker", 
+    "CodeQualityChecker",
     "ArchitectureChecker",
     "TestQualityChecker",
 ]

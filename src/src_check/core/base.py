@@ -57,10 +57,7 @@ class BaseChecker(ABC):
             True if file should be excluded
         """
         path = Path(file_path)
-        for pattern in exclude_patterns:
-            if path.match(pattern):
-                return True
-        return False
+        return any(path.match(pattern) for pattern in exclude_patterns)
 
     def create_result(self, title: Optional[str] = None) -> CheckResult:
         """

@@ -2,8 +2,7 @@
 
 import ast
 import sys
-from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Set, Tuple, Union
+from typing import ClassVar, Dict, List, Optional, Set, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models.check_result import CheckResult, FailureLocation, Severity

@@ -4,7 +4,7 @@ Data models for KPI scoring system.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 from src_check.models.check_result import CheckResult, Severity
 
@@ -50,7 +50,7 @@ class KPIScore:
     total_issues: int = 0
 
     # Default weights for categories
-    DEFAULT_WEIGHTS = {
+    DEFAULT_WEIGHTS: ClassVar[Dict[str, float]] = {
         "code_quality": 0.25,
         "architecture_quality": 0.25,
         "test_quality": 0.25,
@@ -58,7 +58,7 @@ class KPIScore:
     }
 
     # Severity impact on scores
-    SEVERITY_IMPACTS = {
+    SEVERITY_IMPACTS: ClassVar[Dict[Severity, float]] = {
         Severity.CRITICAL: -10.0,
         Severity.HIGH: -5.0,
         Severity.MEDIUM: -3.0,

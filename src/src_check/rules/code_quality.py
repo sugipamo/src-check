@@ -216,11 +216,7 @@ class ComplexityVisitor(ast.NodeVisitor):
             elif isinstance(child, ast.BoolOp):
                 # Each 'and' or 'or' adds a branch
                 complexity += len(child.values) - 1
-            elif (
-                isinstance(child, ast.ExceptHandler)
-                or isinstance(child, ast.Assert)
-                or isinstance(child, ast.comprehension)
-            ):
+            elif isinstance(child, (ast.ExceptHandler, ast.Assert, ast.comprehension)):
                 complexity += 1
 
         return complexity

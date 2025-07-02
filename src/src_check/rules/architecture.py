@@ -4,7 +4,7 @@ Architecture quality checkers.
 
 import ast
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Union
+from typing import ClassVar, Dict, List, Optional, Set, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -141,7 +141,7 @@ class LayerViolationVisitor(ast.NodeVisitor):
     """Detects violations of layered architecture."""
 
     # Common layer patterns
-    LAYER_PATTERNS = {
+    LAYER_PATTERNS: ClassVar[Dict[str, List[str]]] = {
         "ui": ["ui", "view", "controller", "handler", "route"],
         "business": ["service", "business", "logic", "domain", "core"],
         "data": ["repository", "dao", "model", "entity", "database", "db"],

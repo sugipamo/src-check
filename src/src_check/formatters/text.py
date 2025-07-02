@@ -1,7 +1,7 @@
 """Text formatter for human-readable output."""
 
 from collections import defaultdict
-from typing import Dict, List
+from typing import ClassVar, Dict, List
 
 from src_check.formatters import BaseFormatter
 from src_check.models.check_result import CheckResult, Severity
@@ -12,7 +12,7 @@ class TextFormatter(BaseFormatter):
     """Formatter for human-readable text output."""
 
     # Severity icons
-    SEVERITY_ICONS = {
+    SEVERITY_ICONS: ClassVar[Dict[Severity, str]] = {
         Severity.CRITICAL: "🔴",
         Severity.HIGH: "🟠",
         Severity.MEDIUM: "🟡",

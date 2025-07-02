@@ -81,7 +81,7 @@ class PluginRegistry:
                 return
 
             # Iterate through all modules in the package
-            for importer, modname, ispkg in pkgutil.iter_modules(package_path):
+            for _importer, modname, ispkg in pkgutil.iter_modules(package_path):
                 if ispkg:
                     continue  # Skip sub-packages for now
 

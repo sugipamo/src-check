@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 import yaml
 
@@ -57,7 +57,7 @@ class ConfigLoader:
     """Loader for src-check configuration files."""
 
     # Default configuration
-    DEFAULT_CONFIG = {
+    DEFAULT_CONFIG: ClassVar[Dict[str, Any]] = {
         "version": "1.0",
         "exclude": [
             "**/__pycache__/**",
@@ -87,7 +87,7 @@ class ConfigLoader:
     }
 
     # Supported config file names
-    CONFIG_FILENAMES = [
+    CONFIG_FILENAMES: ClassVar[list[str]] = [
         ".src-check.yaml",
         ".src-check.yml",
         ".src-check.json",

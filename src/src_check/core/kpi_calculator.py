@@ -1,7 +1,7 @@
 """KPI score calculator for analyzing check results."""
 
 from collections import defaultdict
-from typing import Dict, List
+from typing import ClassVar, Dict, List
 
 from src_check.models.check_result import CheckResult, Severity
 from src_check.models.simple_kpi_score import KpiScore
@@ -11,7 +11,7 @@ class KPICalculator:
     """Calculator for computing KPI scores from check results."""
 
     # Severity weights for score calculation
-    SEVERITY_WEIGHTS = {
+    SEVERITY_WEIGHTS: ClassVar[Dict[Severity, float]] = {
         Severity.CRITICAL: 10.0,
         Severity.HIGH: 5.0,
         Severity.MEDIUM: 2.0,
@@ -20,7 +20,7 @@ class KPICalculator:
     }
 
     # Category weights for overall score
-    CATEGORY_WEIGHTS = {
+    CATEGORY_WEIGHTS: ClassVar[Dict[str, float]] = {
         "security": 1.5,  # Security is most important
         "code_quality": 1.0,
         "architecture": 1.0,

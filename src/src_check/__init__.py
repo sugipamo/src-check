@@ -19,7 +19,11 @@ __url__ = "https://github.com/yourusername/src-check"
 __license__ = "MIT"
 
 # Version info tuple
-VERSION_INFO = tuple(map(int, __version__.split(".")))
+try:
+    VERSION_INFO = tuple(map(int, __version__.split(".")))  # noqa: RUF048
+except ValueError:
+    # Handle non-numeric version components
+    VERSION_INFO = (1, 0, 0)
 
 # Placeholder for future imports
 # from .core import CheckResult, KPIScore, FailureLocation

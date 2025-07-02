@@ -4,7 +4,7 @@ Security-related quality checkers.
 
 import ast
 import re
-from typing import Optional, Union
+from typing import ClassVar, Dict, List, Optional, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -75,7 +75,7 @@ class SecurityChecker(BaseChecker):
 class HardcodedSecretsVisitor(ast.NodeVisitor):
     """Detects hardcoded secrets and credentials."""
 
-    SECRET_PATTERNS = [
+    SECRET_PATTERNS: ClassVar[List[str]] = [
         "password",
         "passwd",
         "pwd",
@@ -172,7 +172,7 @@ class HardcodedSecretsVisitor(ast.NodeVisitor):
 class DangerousFunctionsVisitor(ast.NodeVisitor):
     """Detects usage of dangerous functions."""
 
-    DANGEROUS_FUNCTIONS = {
+    DANGEROUS_FUNCTIONS: ClassVar[Dict[str, str]] = {
         "eval": "Can execute arbitrary code",
         "exec": "Can execute arbitrary code",
         "compile": "Can compile and execute arbitrary code",
@@ -233,7 +233,7 @@ class DangerousFunctionsVisitor(ast.NodeVisitor):
 
     def _is_true(self, node: Union[ast.expr, ast.AST]) -> bool:
         """Check if a node represents True."""
-        if isinstance(node, ast.Constant) or isinstance(node, ast.NameConstant):
+        if isinstance(node, (ast.Constant, ast.NameConstant)):
             return node.value is True
         return False
 
@@ -241,7 +241,7 @@ class DangerousFunctionsVisitor(ast.NodeVisitor):
 class SQLInjectionVisitor(ast.NodeVisitor):
     """Detects potential SQL injection vulnerabilities."""
 
-    SQL_PATTERNS = [
+    SQL_PATTERNS: ClassVar[List[str]] = [
         r"SELECT.*FROM",
         r"INSERT.*INTO",
         r"UPDATE.*SET",

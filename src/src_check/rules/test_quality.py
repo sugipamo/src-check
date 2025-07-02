@@ -105,7 +105,7 @@ class TestStructureVisitor(ast.NodeVisitor):
                 )
 
             # Check test length (too long tests are hard to understand)
-            if hasattr(node, "end_lineno") and node.end_lineno is not None:
+            if hasattr(node, "end_lineno") and node.end_lineno is not None and node.lineno is not None:
                 test_lines = node.end_lineno - node.lineno
                 if test_lines > 50:
                     self.result.add_failure(
@@ -118,6 +118,11 @@ class TestStructureVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Check async test function structure."""
+        # Delegate to visit_FunctionDef for common logic
+        self.visit_FunctionDef(node)  # type: ignore[arg-type]
+
 
 class TestAssertionVisitor(ast.NodeVisitor):
     """Checks for proper test assertions."""
@@ -128,7 +133,7 @@ class TestAssertionVisitor(ast.NodeVisitor):
         self.current_test: Optional[str] = None
         self.assertion_count = 0
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+    def visit_FunctionDef(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         """Track test functions."""
         if node.name.startswith("test_"):
             old_test = self.current_test
@@ -161,6 +166,10 @@ class TestAssertionVisitor(ast.NodeVisitor):
             self.assertion_count = old_count
         else:
             self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Track async test functions."""
+        self.visit_FunctionDef(node)
 
     def visit_Assert(self, node: ast.Assert) -> None:
         """Count assertions."""
@@ -210,7 +219,7 @@ class TestAssertionVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _get_function_name(self, node: ast.expr) -> str:
+    def _get_function_name(self, node: Union[ast.expr, ast.AST]) -> str:
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id
@@ -226,7 +235,7 @@ class TestNamingVisitor(ast.NodeVisitor):
         self.file_path = file_path
         self.result = result
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+    def visit_FunctionDef(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         """Check test function naming."""
         if node.name.startswith("test"):
             # Check for generic test names
@@ -259,6 +268,10 @@ class TestNamingVisitor(ast.NodeVisitor):
                 )
 
         self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Check async test function naming."""
+        self.visit_FunctionDef(node)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Check test class naming."""

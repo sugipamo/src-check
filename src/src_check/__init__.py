@@ -8,7 +8,7 @@ A comprehensive tool for analyzing Python codebases with:
 - Comprehensive import management
 """
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __author__ = "Development Team"
 __email__ = "dev@example.com"
 
@@ -23,7 +23,7 @@ try:
     VERSION_INFO = tuple(map(int, __version__.split(".")))  # noqa: RUF048
 except ValueError:
     # Handle non-numeric version components
-    VERSION_INFO = (1, 0, 0)
+    VERSION_INFO = (0, 2, 0)
 
 # Placeholder for future imports
 # from .core import CheckResult, KPIScore, FailureLocation

@@ -4,7 +4,7 @@ Security-related quality checkers.
 
 import ast
 import re
-from typing import Optional
+from typing import Optional, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -216,13 +216,13 @@ class DangerousFunctionsVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _get_function_name(self, node: ast.expr) -> str:
+    def _get_function_name(self, node: Union[ast.expr, ast.AST]) -> str:
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id
         elif isinstance(node, ast.Attribute):
             parts = []
-            current: ast.expr = node
+            current: Union[ast.expr, ast.AST] = node
             while isinstance(current, ast.Attribute):
                 parts.append(current.attr)
                 current = current.value
@@ -231,7 +231,7 @@ class DangerousFunctionsVisitor(ast.NodeVisitor):
             return ".".join(reversed(parts))
         return ""
 
-    def _is_true(self, node: ast.expr) -> bool:
+    def _is_true(self, node: Union[ast.expr, ast.AST]) -> bool:
         """Check if a node represents True."""
         if isinstance(node, ast.Constant):
             return node.value is True
@@ -293,7 +293,7 @@ class SQLInjectionVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _extract_string(self, node: ast.expr) -> Optional[str]:
+    def _extract_string(self, node: Union[ast.expr, ast.AST]) -> Optional[str]:
         """Extract string value from AST node."""
         if isinstance(node, ast.Str):
             return node.s
@@ -301,7 +301,7 @@ class SQLInjectionVisitor(ast.NodeVisitor):
             return node.value
         return None
 
-    def _get_function_name(self, node: ast.expr) -> str:
+    def _get_function_name(self, node: Union[ast.expr, ast.AST]) -> str:
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id
@@ -367,7 +367,7 @@ class PickleUsageVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _get_function_name(self, node: ast.expr) -> str:
+    def _get_function_name(self, node: Union[ast.expr, ast.AST]) -> str:
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id

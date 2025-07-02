@@ -32,13 +32,16 @@ def multiply(x: int, y: int) -> int:
     return x * y
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
-        assert any("add" in loc.message and "type hint" in loc.message.lower() for loc in result.failure_locations)
+        assert any(
+            "add" in loc.message and "type hint" in loc.message.lower()
+            for loc in result.failure_locations
+        )
 
     def test_missing_return_type_hint(self, checker, tmp_path):
         """Test detection of missing return type hints."""
@@ -54,13 +57,16 @@ def set_value(key: str, value: int) -> None:
     values[key] = value
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
-        assert any("get_value" in loc.message and "return type" in loc.message.lower() for loc in result.failure_locations)
+        assert any(
+            "get_value" in loc.message and "return type" in loc.message.lower()
+            for loc in result.failure_locations
+        )
 
     def test_missing_parameter_type_hints(self, checker, tmp_path):
         """Test detection of missing parameter type hints."""
@@ -76,10 +82,10 @@ def transform(input_data: dict, options) -> dict:
     return {**input_data, **options}
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         # Should find issues with both functions
@@ -103,10 +109,10 @@ class Calculator:
         return a - b
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert any("add" in loc.message for loc in result.failure_locations)
@@ -140,10 +146,10 @@ class DataProcessor:
         return data
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is None  # Should pass with no issues
 
     def test_private_methods_optional(self, checker, tmp_path):
@@ -163,10 +169,10 @@ class MyClass:
         return value * 2
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is None  # Should pass
 
     def test_init_return_type_not_required(self, checker, tmp_path):
@@ -182,10 +188,10 @@ class MyClass:
         self.value = value
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is None  # Should pass
 
     def test_generic_types(self, checker, tmp_path):
@@ -204,10 +210,10 @@ def process_typed_dict(data: Dict[str, int]) -> List[int]:
     return list(data.values())
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         # Should complain about untyped dict and list
@@ -227,10 +233,10 @@ async def process_data(data: dict) -> dict:
     return await transform(data)
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert any("fetch_data" in loc.message for loc in result.failure_locations)

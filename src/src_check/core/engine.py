@@ -36,7 +36,7 @@ class AnalysisEngine:
         Returns:
             List of check results from all checkers
         """
-        results = []
+        results: List[CheckResult] = []
 
         if not file_path.exists():
             logger.warning(f"File not found: {file_path}")
@@ -82,7 +82,7 @@ class AnalysisEngine:
         Returns:
             Dictionary mapping file paths to their check results
         """
-        results = {}
+        results: Dict[str, List[CheckResult]] = {}
 
         if not dir_path.exists():
             logger.warning(f"Directory not found: {dir_path}")

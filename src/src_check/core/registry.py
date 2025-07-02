@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class PluginRegistry:
     """Registry for managing and discovering checker plugins."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the plugin registry."""
         self._checkers: Dict[str, Type[BaseChecker]] = {}
         self._instances: Dict[str, BaseChecker] = {}

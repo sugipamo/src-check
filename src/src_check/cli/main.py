@@ -10,15 +10,17 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Union, Optional
 
 from src_check.core.config_loader import ConfigLoader
 from src_check.core.engine import AnalysisEngine
 from src_check.core.kpi_calculator import KPICalculator
 from src_check.core.registry import registry
+from src_check.formatters import BaseFormatter
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.markdown import MarkdownFormatter
 from src_check.formatters.text import TextFormatter
+from src_check.models import CheckResult
 
 
 def parse_args() -> argparse.Namespace:
@@ -81,7 +83,7 @@ def setup_logging(verbose: bool) -> None:
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
 
 
-def get_formatter(format_type: str):
+def get_formatter(format_type: str) -> BaseFormatter:
     """Get the appropriate formatter based on format type."""
     formatters = {
         "text": TextFormatter(),
@@ -115,9 +117,9 @@ def main() -> None:
             config = config_loader.load_from_file(config_path)
         else:
             # Try to find config file
-            config_path = config_loader.find_config_file(Path.cwd())
-            if config_path:
-                config = config_loader.load_from_file(config_path)
+            found_config_path: Optional[Path] = config_loader.find_config_file(Path.cwd())
+            if found_config_path:
+                config = config_loader.load_from_file(found_config_path)
             else:
                 config = config_loader.load_default_config()
 
@@ -138,16 +140,16 @@ def main() -> None:
         engine = AnalysisEngine(checkers)
 
         # Analyze paths
-        all_results = {}
+        all_results: Dict[str, List[CheckResult]] = {}
         for path in paths:
             print(f"📂 Analyzing {path}...")
             if path.is_file():
-                results = engine.analyze_file(path)
-                if results:
-                    all_results[str(path)] = results
+                file_results = engine.analyze_file(path)
+                if file_results:
+                    all_results[str(path)] = file_results
             else:
-                results = engine.analyze_directory(path)
-                all_results.update(results)
+                dir_results = engine.analyze_directory(path)
+                all_results.update(dir_results)
 
         # Calculate KPI score
         calculator = KPICalculator()

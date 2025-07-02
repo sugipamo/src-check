@@ -27,15 +27,18 @@ def function():
     pass
 """
         test_file.write_text(content)
-        
+
         # Parse AST
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert result.failure_count >= 1  # May find both module and function issues
-        assert any("module docstring" in loc.message.lower() for loc in result.failure_locations)
+        assert any(
+            "module docstring" in loc.message.lower()
+            for loc in result.failure_locations
+        )
 
     def test_missing_function_docstring(self, checker, tmp_path):
         """Test detection of missing function docstring."""
@@ -50,14 +53,17 @@ def function_with_docstring():
     return 43
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert result.failure_count == 1
-        assert any("function_without_docstring" in loc.message for loc in result.failure_locations)
+        assert any(
+            "function_without_docstring" in loc.message
+            for loc in result.failure_locations
+        )
 
     def test_missing_class_docstring(self, checker, tmp_path):
         """Test detection of missing class docstring."""
@@ -77,14 +83,16 @@ class ClassWithDocstring:
         pass
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert result.failure_count == 1
-        assert any("ClassWithoutDocstring" in loc.message for loc in result.failure_locations)
+        assert any(
+            "ClassWithoutDocstring" in loc.message for loc in result.failure_locations
+        )
 
     def test_incomplete_function_docstring(self, checker, tmp_path):
         """Test detection of incomplete function docstring."""
@@ -108,14 +116,16 @@ def function_complete(param1: str, param2: int) -> bool:
     return len(param1) > param2
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert result.failure_count >= 1
-        assert any("parameter" in loc.message.lower() for loc in result.failure_locations)
+        assert any(
+            "parameter" in loc.message.lower() for loc in result.failure_locations
+        )
 
     def test_missing_return_documentation(self, checker, tmp_path):
         """Test detection of missing return value documentation."""
@@ -135,10 +145,10 @@ def function_with_return() -> int:
     return 42
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
         assert any("return" in loc.message.lower() for loc in result.failure_locations)
@@ -187,10 +197,10 @@ def standalone_function(text: str) -> str:
     return text.upper()
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is None  # Should return None if no issues found
 
     def test_private_methods_optional(self, checker, tmp_path):
@@ -214,10 +224,10 @@ class MyClass:
         pass
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is None  # Should pass
 
     def test_docstring_format_checking(self, checker, tmp_path):
@@ -244,10 +254,10 @@ def good_format(param: str) -> str:
     return param
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         # Should detect formatting issues
         assert result is not None
         assert not result.passed
@@ -265,10 +275,12 @@ async def async_function_with_doc():
     return "result"
 '''
         test_file.write_text(content)
-        
+
         tree = ast.parse(content, filename=str(test_file))
         result = checker.check(tree, str(test_file))
-        
+
         assert result is not None
         assert not result.passed
-        assert any("async_function_no_doc" in loc.message for loc in result.failure_locations)
+        assert any(
+            "async_function_no_doc" in loc.message for loc in result.failure_locations
+        )

@@ -4,7 +4,7 @@ Code quality checkers.
 
 import ast
 import re
-from typing import Optional
+from typing import Optional, Dict, Set, Union, Tuple
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -90,7 +90,7 @@ class NamingConventionVisitor(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Check async function naming."""
-        self.visit_FunctionDef(node)
+        self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Check class naming."""
@@ -204,7 +204,7 @@ class ComplexityVisitor(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Check async function complexity."""
-        self.visit_FunctionDef(node)
+        self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
     def _calculate_complexity(self, node: ast.FunctionDef) -> int:
         """Calculate McCabe cyclomatic complexity."""
@@ -232,8 +232,8 @@ class UnusedImportsVisitor(ast.NodeVisitor):
     def __init__(self, file_path: str, result: CheckResult):
         self.file_path = file_path
         self.result = result
-        self.imports = {}  # name -> (line, col, full_name)
-        self.used_names = set()
+        self.imports: Dict[str, Tuple[int, int, str]] = {}  # name -> (line, col, full_name)
+        self.used_names: Set[str] = set()
         self._analyzed = False  # Flag to prevent duplicate analysis
 
     def visit_Import(self, node: ast.Import) -> None:
@@ -262,7 +262,7 @@ class UnusedImportsVisitor(ast.NodeVisitor):
     def visit_Attribute(self, node: ast.Attribute) -> None:
         """Track attribute usage."""
         # Get the root name
-        root = node
+        root: Union[ast.expr, ast.AST] = node
         while isinstance(root, ast.Attribute):
             root = root.value
         if isinstance(root, ast.Name):

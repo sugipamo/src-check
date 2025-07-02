@@ -212,8 +212,11 @@ class ConfigLoader:
                     merged["checkers"] = merged_checkers
             elif key == "exclude" and isinstance(value, list):
                 # Extend exclude list
-                if isinstance(merged.get("exclude"), list):
-                    merged["exclude"].extend(value)
+                existing_exclude = merged.get("exclude")
+                if isinstance(existing_exclude, list):
+                    existing_exclude.extend(value)
+                else:
+                    merged["exclude"] = value
             else:
                 merged[key] = value
 

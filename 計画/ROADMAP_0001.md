@@ -7,17 +7,18 @@
 
 ### ✅ v0.1.0 - Foundation 完了 (注: pyproject.tomlのバージョンは1.0.0と記載されているが、実際はv0.1.0相当)
 - 基本機能の実装完了
-- ✅ 7つのチェッカー実装済み (security, code_quality, architecture, test_quality, documentation, type_hints, performance)
+- ✅ 8つのチェッカー実装済み (security, code_quality, architecture, test_quality, documentation, type_hints, performance, dependency)
 - ✅ CLI統合完了 (src-check, src-check-kpi コマンド)
-- ✅ 全68テスト合格、カバレッジ83%達成
+- ✅ 全80テスト合格、カバレッジ83.59%達成
 - ✅ プラグインシステム基盤完成
+- ✅ mypyエラー0達成、完全な型安全性確保
 
 ## 🚀 次期リリース計画
 
 ### v0.2.0 - Functional (2週間後)
 **テーマ**: 実用的なツールに
 
-#### コード品質の最終調整
+#### ✅ コード品質の最終調整（完了）
 - [x] Blackフォーマットの適用 (4ファイル: type_hints.py, documentation.py, test_type_hint_checker.py, test_documentation_checker.py) ✅
 - [x] pyproject.tomlのRuff設定更新 (lintセクションへ移行済み) ✅
 - [x] 型スタブのインストール (types-PyYAML, types-toml) ✅
@@ -71,9 +72,10 @@
 ### 現在の状況
 - テストカバレッジ: 83.59% ✅
 - テスト数: 80 (全て合格) ✅
-- チェッカー数: 8/10 実装済み
-- ドキュメント化率: 約60%
+- チェッカー数: 8/10 実装済み ✅
+- ドキュメント化率: 約70%
 - 型アノテーション: 100% ✅ (mypyエラー0)
+- コードフォーマット: Black適用済み ✅
 
 ### 目標値
 - テストカバレッジ: 85%以上を維持
@@ -83,7 +85,7 @@
 
 ## 🔍 現在の課題と対応
 
-### ~~mypyエラー詳細 (33エラー)~~ ✅ 解決済み
+### ~~mypyエラー詳細 (33エラー)~~ ✅ 解決済み ⚠️ 不要セクション
 - ~~**型アノテーションの欠落**: 関数引数、戻り値、変数の型指定~~
 - ~~**互換性エラー**: AsyncFunctionDefをFunctionDefとして扱う問題~~
 - ~~**属性エラー**: objectに存在しない属性へのアクセス~~
@@ -106,8 +108,8 @@ pip install types-PyYAML types-toml
 ```
 
 ### 2. 次期チェッカー実装優先順位
-1. PerformanceChecker - パフォーマンス問題の早期発見
-2. DependencyChecker - 依存関係の健全性確保
+1. ~~PerformanceChecker - パフォーマンス問題の早期発見~~ ✅ 実装済み
+2. ~~DependencyChecker - 依存関係の健全性確保~~ ✅ 実装済み
 3. DeprecationChecker - 廃止予定機能の使用検出
 4. LicenseChecker - ライセンス整合性の確認
 
@@ -194,4 +196,36 @@ pip install types-PyYAML types-toml
 
 ---
 
-更新日: 2025-07-02 18:50
+## 🎯 次のステップ（優先順位順）
+
+### 1. 残り2つのチェッカー実装（v0.2.0完成のため）
+- [ ] **LicenseChecker** - ライセンス整合性チェック
+  - LICENSE ファイルの検出
+  - 依存関係のライセンス互換性チェック
+  - コピーライトヘッダーの検証
+- [ ] **DeprecationChecker** - 廃止予定機能の使用検出
+  - Python標準ライブラリの廃止予定機能検出
+  - サードパーティライブラリの廃止APIの検出
+  - 独自の@deprecatedデコレータのサポート
+
+### 2. ドキュメント整備（ユーザビリティ向上）
+- [ ] README.mdの充実
+  - インストール手順の明確化
+  - 実際に動く使用例の追加
+  - 各チェッカーの説明と出力例
+- [ ] 各チェッカーの詳細ドキュメント作成
+- [ ] CI/CD統合ガイドの作成
+
+### 3. パフォーマンス最適化
+- [ ] 大規模プロジェクトでのベンチマーク実施
+- [ ] ボトルネックの特定と最適化
+- [ ] キャッシュメカニズムの検討
+
+### 4. 自動修正機能の基本実装（v0.3.0準備）
+- [ ] 修正可能な問題の特定
+- [ ] 自動修正フレームワークの設計
+- [ ] 最初の自動修正機能の実装（例：未使用import削除）
+
+---
+
+更新日: 2025-07-02 17:41

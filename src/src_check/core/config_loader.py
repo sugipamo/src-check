@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, Dict, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 import yaml
 
@@ -87,7 +87,7 @@ class ConfigLoader:
     }
 
     # Supported config file names
-    CONFIG_FILENAMES: ClassVar[list[str]] = [
+    CONFIG_FILENAMES: ClassVar[List[str]] = [
         ".src-check.yaml",
         ".src-check.yml",
         ".src-check.json",

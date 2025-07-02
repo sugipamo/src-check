@@ -26,7 +26,7 @@
 #### 追加チェッカーの実装 (10種類に拡張)
 - [x] DocumentationChecker (docstring品質チェック) ✅
 - [x] PerformanceChecker (パフォーマンス問題検出) ✅
-- [ ] DependencyChecker (依存関係の健全性チェック)
+- [x] DependencyChecker (依存関係の健全性チェック) ✅
 - [ ] LicenseChecker (ライセンス整合性チェック)
 - [ ] DeprecationChecker (廃止予定機能の使用検出)
 - [x] TypeHintChecker (型ヒントの充実度チェック) ✅
@@ -69,9 +69,9 @@
 ## 📊 品質指標
 
 ### 現在の状況
-- テストカバレッジ: 83% ✅
-- テスト数: 68 (全て合格) ✅
-- チェッカー数: 7/10 実装済み
+- テストカバレッジ: 83.59% ✅
+- テスト数: 80 (全て合格) ✅
+- チェッカー数: 8/10 実装済み
 - ドキュメント化率: 約60%
 - 型アノテーション: 100% ✅ (mypyエラー0)
 
@@ -154,7 +154,7 @@ pip install types-PyYAML types-toml
 
 ## 📝 直近の実装タスク
 
-### 実装済みチェッカー (7種類)
+### 実装済みチェッカー (8種類)
 1. ✅ SecurityChecker - セキュリティ脆弱性の検出
 2. ✅ CodeQualityChecker - コード品質の問題検出
 3. ✅ ArchitectureChecker - アーキテクチャ問題の検出
@@ -162,16 +162,16 @@ pip install types-PyYAML types-toml
 5. ✅ DocumentationChecker - ドキュメント品質チェック
 6. ✅ TypeHintChecker - 型ヒントの充実度チェック
 7. ✅ PerformanceChecker - パフォーマンス問題検出
+8. ✅ DependencyChecker - 依存関係の健全性チェック
 
-### 未実装チェッカー (3種類) - v0.2.0で実装予定
-1. ⏳ DependencyChecker - 依存関係の健全性チェック
-2. ⏳ LicenseChecker - ライセンス整合性チェック
-3. ⏳ DeprecationChecker - 廃止予定機能の使用検出
+### 未実装チェッカー (2種類) - v0.2.0で実装予定
+1. ⏳ LicenseChecker - ライセンス整合性チェック
+2. ⏳ DeprecationChecker - 廃止予定機能の使用検出
 
 ### CLI統合状況
 - ✅ src-check: メインコマンド実装完了
 - ✅ src-check-kpi: KPIスコア計算コマンド実装完了
-- ✅ 全66テスト合格、カバレッジ83.07%達成
+- ✅ 全80テスト合格、カバレッジ83.59%達成
 
 ### PerformanceChecker実装詳細
 - ✅ ループ内での不変式検出
@@ -182,6 +182,16 @@ pip install types-PyYAML types-toml
 - ✅ 13種類のテストケース実装
 - ✅ 8種類のパフォーマンス問題パターン検出 (PERF001-PERF008)
 
+### DependencyChecker実装詳細
+- ✅ 循環依存の検出 (DEP001)
+- ✅ 未使用の依存関係の検出 (DEP002)
+- ✅ バージョン未指定の依存関係検出 (DEP006)
+- ✅ 開発/本番依存の混在検出 (DEP007)
+- ✅ requirements.txtとpyproject.tomlの解析
+- ✅ importlib.metadataを使用した高度な依存関係解析
+- ✅ 12種類のテストケース実装
+- ✅ パッケージ名マッピング対応 (PIL→pillow等)
+
 ---
 
-更新日: 2025-07-02 17:21
+更新日: 2025-07-02 18:50

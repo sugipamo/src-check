@@ -32,7 +32,9 @@ class TestLicenseChecker:
         assert result is not None
         assert len(result.failure_locations) >= 1
         assert "LIC001" in result.metadata
-        assert any("LICENSE file not found" in loc.message for loc in result.failure_locations)
+        assert any(
+            "LICENSE file not found" in loc.message for loc in result.failure_locations
+        )
 
     def test_mit_license_detection(self):
         """Test MIT license detection."""
@@ -56,13 +58,14 @@ Licensed under the MIT License.
 def foo():
     pass
 '''
+
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self) or "test.py" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open()) as mock_file:
@@ -84,10 +87,10 @@ You can do whatever you want."""
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=unknown_license)):
@@ -103,7 +106,7 @@ You can do whatever you want."""
         # Mock installed packages with licenses
         mock_dist1 = MagicMock()
         mock_dist1.metadata = {"Name": "package1", "License": "GPL-3.0"}
-        
+
         mock_dist2 = MagicMock()
         mock_dist2.metadata = {"Name": "package2", "License": "MIT"}
 
@@ -112,15 +115,18 @@ You can do whatever you want."""
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=mit_license)):
                     with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch("importlib.metadata.distributions", return_value=[mock_dist1, mock_dist2]):
+                        with patch(
+                            "importlib.metadata.distributions",
+                            return_value=[mock_dist1, mock_dist2],
+                        ):
                             ast_tree = ast.parse("")
                             result = self.checker.check(ast_tree, "test.py")
 
@@ -138,15 +144,17 @@ You can do whatever you want."""
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=mit_license)):
                     with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch("importlib.metadata.distributions", return_value=[mock_dist]):
+                        with patch(
+                            "importlib.metadata.distributions", return_value=[mock_dist]
+                        ):
                             ast_tree = ast.parse("")
                             result = self.checker.check(ast_tree, "test.py")
 
@@ -161,14 +169,14 @@ def foo():
     pass
 '''
         mit_license = """MIT License"""
-        
+
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self) or "test.py" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open()) as mock_file:
@@ -196,10 +204,10 @@ def foo():
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self) or "test.py" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open()) as mock_file:
@@ -227,10 +235,10 @@ def foo():
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self) or "test.py" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open()) as mock_file:
@@ -254,17 +262,25 @@ license = {text = "Apache-2.0"}
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self) or "pyproject.toml" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open()) as mock_file:
                     # Configure different return values for different files
-                    mock_file.return_value.read.side_effect = [mit_license, pyproject_content]
+                    mock_file.return_value.read.side_effect = [
+                        mit_license,
+                        pyproject_content,
+                    ]
                     with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch("toml.load", return_value={"project": {"license": {"text": "Apache-2.0"}}}):
+                        with patch(
+                            "toml.load",
+                            return_value={
+                                "project": {"license": {"text": "Apache-2.0"}}
+                            },
+                        ):
                             ast_tree = ast.parse("")
                             result = self.checker.check(ast_tree, "test.py")
 
@@ -281,21 +297,25 @@ license = {text = "Apache-2.0"}
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=mit_license)):
                     with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch("importlib.metadata.distributions", return_value=[mock_dist]):
+                        with patch(
+                            "importlib.metadata.distributions", return_value=[mock_dist]
+                        ):
                             ast_tree = ast.parse("")
                             result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC008" in result.metadata
-        assert any("no-license-package" in loc.message for loc in result.failure_locations)
+        assert any(
+            "no-license-package" in loc.message for loc in result.failure_locations
+        )
 
     def test_apache_license_detection(self):
         """Test Apache 2.0 license detection."""
@@ -306,13 +326,14 @@ license = {text = "Apache-2.0"}
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 """
+
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=apache_license)):
@@ -333,13 +354,14 @@ Copyright (c) 2025, Test Author
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 """
+
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "LICENSE" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=bsd_license)):
@@ -357,21 +379,34 @@ modification, are permitted provided that the following conditions are met:
 
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
-            return any(lic in str(self) for lic in ["LICENSE", "LICENSE.txt", "LICENSE.md"])
-        
+            return any(
+                lic in str(self) for lic in ["LICENSE", "LICENSE.txt", "LICENSE.md"]
+            )
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=mit_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE"), Path("LICENSE.txt"), Path("LICENSE.md")]):
+                    with patch.object(
+                        Path,
+                        "iterdir",
+                        return_value=[
+                            Path("LICENSE"),
+                            Path("LICENSE.txt"),
+                            Path("LICENSE.md"),
+                        ],
+                    ):
                         ast_tree = ast.parse("")
                         result = self.checker.check(ast_tree, "test.py")
 
         # Should handle multiple license files without critical issues
         if result:
-            assert result.severity != Severity.CRITICAL and result.severity != Severity.HIGH
+            assert (
+                result.severity != Severity.CRITICAL
+                and result.severity != Severity.HIGH
+            )
 
     def test_pyproject_toml_license_field(self):
         """Test reading license from pyproject.toml license field."""
@@ -383,18 +418,20 @@ license = "MIT"
         # Reset the checker state
         self.checker._project_checked = False
         self.checker._project_license = None
-        
+
         # Create a side effect function that properly handles the Path instance
         def exists_side_effect(self):
             return "pyproject.toml" in str(self)
-        
+
         def is_file_side_effect(self):
             return True
-            
+
         with patch.object(Path, "exists", exists_side_effect):
             with patch.object(Path, "is_file", is_file_side_effect):
                 with patch("builtins.open", mock_open(read_data=pyproject_content)):
-                    with patch("toml.load", return_value={"project": {"license": "MIT"}}):
+                    with patch(
+                        "toml.load", return_value={"project": {"license": "MIT"}}
+                    ):
                         ast_tree = ast.parse("")
                         result = self.checker.check(ast_tree, "test.py")
 

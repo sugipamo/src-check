@@ -1,4 +1,5 @@
 """Analysis engine for running checkers on files and directories."""
+import ast
 from pathlib import Path
 from typing import Dict, List, Optional
 import logging
@@ -42,10 +43,25 @@ class AnalysisEngine:
             logger.warning(f"Not a file: {file_path}")
             return results
             
+        # Parse the Python file
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            ast_tree = ast.parse(content, filename=str(file_path))
+        except Exception as e:
+            logger.error(f"Error parsing {file_path}: {e}")
+            return results
+            
+        # Run each checker
         for checker in self.checkers:
             try:
-                checker_results = checker.check_file(file_path)
-                results.extend(checker_results)
+                checker_result = checker.check(ast_tree, str(file_path))
+                if checker_result:
+                    # Check if it's a single result or list
+                    if isinstance(checker_result, list):
+                        results.extend(checker_result)
+                    else:
+                        results.append(checker_result)
             except Exception as e:
                 logger.error(f"Error running {checker.name} on {file_path}: {e}")
                 

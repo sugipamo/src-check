@@ -6,7 +6,7 @@ import yaml
 import json
 import logging
 
-from src_check.models.config import Config
+# Remove unused import
 
 logger = logging.getLogger(__name__)
 

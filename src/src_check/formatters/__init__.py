@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List
 
 from src_check.models.check_result import CheckResult
-from src_check.models.kpi_score import KpiScore
+from src_check.models.simple_kpi_score import KpiScore
 
 
 class BaseFormatter(ABC):

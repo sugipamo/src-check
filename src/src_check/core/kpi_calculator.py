@@ -3,7 +3,7 @@ from typing import Dict, List
 from collections import defaultdict
 
 from src_check.models.check_result import CheckResult, Severity
-from src_check.models.kpi_score import KpiScore
+from src_check.models.simple_kpi_score import KpiScore
 
 
 class KPICalculator:
@@ -125,7 +125,7 @@ class KPICalculator:
         return round(score, 2)
         
     def _calculate_overall_score(self, category_scores: Dict[str, float], 
-                                severity_counts: Dict[SeverityLevel, int]) -> float:
+                                severity_counts: Dict[Severity, int]) -> float:
         """Calculate overall score from category scores and severity counts.
         
         Args:

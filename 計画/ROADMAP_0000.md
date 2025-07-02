@@ -100,6 +100,14 @@
 - 月間ダウンロード: 0 → 1000 → 10000
 - 採用企業: 0 → 10 → 50
 
+## 📋 不要になったタスク
+
+### CLI統合の完成 (~~完了済み~~)
+- ~~AnalysisEngineの実装~~ (完了済み)
+- ~~KPICalculatorの実装~~ (完了済み)
+- ~~OutputFormatterの実装~~ (完了済み)
+- ~~ConfigLoaderの実装~~ (完了済み)
+
 ## 📝 即時実装が必要なタスク
 
 ### CLI統合の完成
@@ -119,9 +127,10 @@
 - [ ] インストール手順の整備
 
 ### バグ修正と改善
-- [ ] test_main_cli_basic_executionテストの失敗を修正
+- [ ] test_circular_import_detectionテストの失敗を修正 (ArchitectureChecker.checkメソッドの修正が必要)
 - [ ] CLIの実際の動作確認と修正
 - [ ] エラーハンドリングの改善
+- [ ] コード品質問題の修正 (Black, Ruff, mypy対応)
 
 ### 追加チェッカーの実装
 - [ ] DocumentationChecker (docstring品質チェック)
@@ -130,6 +139,14 @@
 - [ ] LicenseChecker (ライセンス整合性チェック)
 - [ ] DeprecationChecker (廃止予定機能の使用検出)
 - [ ] TypeHintChecker (型ヒントの充実度チェック)
+
+### コード品質問題の修正 (最優先)
+- [ ] test_circular_import_detectionテストの修正 (ArchitectureChecker実装)
+- [ ] 型スタブのインストール (types-PyYAML, types-toml)
+- [ ] Blackによるコードフォーマット (26ファイル)
+- [ ] Ruffによるリンティングエラー修正 (620件、566件は自動修正可能)
+- [ ] mypyの型アノテーション問題修正 (67件)
+- [ ] CheckResultモデルの属性エラー修正 (line, message, rule_id等)
 
 ## 🎨 将来の可能性
 

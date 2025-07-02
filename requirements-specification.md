@@ -27,10 +27,10 @@ src-checkは、競技プログラミング支援ツールの一部として開�
 
 ### 2.1 コア機能
 
-#### 2.1.1 動的品質分析システム
-- **動的モジュール探索**: DFS探索による`main.py`ファイルの自動発見
-- **動的インポート実行**: 独立した名前空間での安全なモジュール実行
-- **プラグイン型拡張**: 新しいチェックルールの簡単な追加
+#### 2.1.1 静的品質分析システム
+- **プラグイン登録制**: エントリーポイントによる安全なルール管理
+- **AST解析実行**: コード実行を伴わない静的解析によるパターン検出
+- **設定ベース拡張**: YAMLまたはJSONによるルール設定と有効化
 
 #### 2.1.2 包括的品質チェック（20+種類）
 **セキュリティ分析**
@@ -133,25 +133,36 @@ severity_impacts:
 ### 2.3 ユーザーワークフロー
 
 #### 2.3.1 標準分析ワークフロー
-1. **前処理**: インポートパス検証・修正
-2. **探索**: DFS探索によるチェックモジュール発見
-3. **動的実行**: 各チェッカーモジュールの独立実行
+1. **前処理**: ファイルパス検証・対象ファイル収集
+2. **プラグイン読込**: 登録済みチェッカーの読み込み
+3. **静的解析**: 各ファイルのAST解析とパターン検出
 4. **KPI計算**: 4軸での品質スコア算出
 5. **レポート生成**: 包括的レポート・サマリー作成
-6. **後処理**: 最終インポート検証・クリーンアップ
+6. **後処理**: 結果の集約とクリーンアップ
 7. **自動修正**: 検出された問題の選択的自動修正
 
 #### 2.3.2 拡張メカニズム
 **新しいルール追加**
 ```python
-# processors/rules/my_checker/main.py
-def main() -> CheckResult:
-    return CheckResult(
-        title="my_checker",
-        failure_locations=[...],
-        fix_policy="修正方針",
-        fix_example_code="修正例"
-    )
+# src_check/rules/my_checker.py
+from src_check.core.base import BaseChecker
+
+class MyChecker(BaseChecker):
+    def check(self, ast_tree, file_path) -> CheckResult:
+        # AST解析によるパターン検出
+        return CheckResult(
+            title="my_checker",
+            failure_locations=[...],
+            fix_policy="修正方針",
+            fix_example_code="修正例"
+        )
+```
+
+**エントリーポイント登録**
+```toml
+# pyproject.toml
+[project.entry-points."src_check.rules"]
+my_checker = "my_package.rules:MyChecker"
 ```
 
 ---
@@ -183,14 +194,15 @@ def main() -> CheckResult:
 - **CI/CD統合**: Jenkins・GitHub Actions・GitLab CI対応
 
 ### 3.5 セキュリティ要件
-- **安全なコード解析**: ASTパーサー使用（eval/exec回避）
-- **インポート分離**: 動的インポートの適切なクリーンアップ
+- **安全なコード解析**: ASTパーサーのみ使用（動的実行なし）
+- **静的解析**: コード実行を伴わない安全な解析
 - **パス検証**: ディレクトリトラバーサル防止
 - **入力検証**: ファイル形式・内容の検証
+- **プラグイン検証**: 登録されたプラグインの署名検証
 
 ### 3.6 保守性要件
 - **モジュラー設計**: core・processors・models・utilitiesの明確分離
-- **プラグインアーキテクチャ**: 動的モジュール発見による拡張性
+- **プラグインアーキテクチャ**: エントリーポイントによる安全な拡張性
 - **関心の分離**: インポート修正・チェック・スコアリングの独立
 - **包括的テスト**: 単体・統合・エンドツーエンドテスト
 
@@ -227,8 +239,9 @@ src_check/
 │   ├── main.py                     # メインCLI
 │   └── kpi.py                      # KPI専用CLI
 ├── core/                           # コア機能
-│   ├── dynamic_importer.py         # 動的インポート
-│   ├── module_explorer.py          # モジュール探索
+│   ├── base.py                     # 基底チェッカークラス
+│   ├── registry.py                 # プラグインレジストリ
+│   ├── ast_analyzer.py             # AST解析エンジン
 │   ├── result_writer.py            # 結果出力
 │   ├── scoring/                    # KPIスコアリング
 │   └── database/                   # データ永続化
@@ -243,10 +256,11 @@ src_check/
 ```
 
 #### 4.2.2 プラグインシステム
-- **動的発見**: DFS探索による`main.py`ファイル検索
+- **エントリーポイント**: setuptools entry_points による安全な登録
 - **レジストリパターン**: プロセッサ管理
 - **ファクトリパターン**: 結果生成・フォーマット
 - **ストラテジパターン**: 複数実行モード
+- **プラグイン検証**: インポート前の安全性確認
 
 #### 4.2.3 設定管理
 - **階層設定**: CLI引数 > プロジェクト設定 > ユーザー設定 > デフォルト
@@ -265,9 +279,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "src-check"
 version = "1.0.0"
-description = "Code quality analysis and KPI scoring system"
+description = "Static code quality analysis and KPI scoring system"
 requires-python = ">=3.8"
 dependencies = ["pyyaml>=5.0"]
+
+[project.entry-points."src_check.rules"]
+# ビルトインルール
+security = "src_check.rules.security:SecurityChecker"
+architecture = "src_check.rules.architecture:ArchitectureChecker"
+code_quality = "src_check.rules.code_quality:CodeQualityChecker"
+test_quality = "src_check.rules.test_quality:TestQualityChecker"
 ```
 
 #### 4.3.2 エントリーポイント
@@ -275,6 +296,9 @@ dependencies = ["pyyaml>=5.0"]
 [project.scripts]
 src-check = "src_check.cli.main:main"
 src-check-kpi = "src_check.cli.kpi:main"
+
+[project.entry-points."src_check.rules"]
+# 外部プラグインもここに追加可能
 ```
 
 #### 4.3.3 テスト要件
@@ -315,10 +339,11 @@ classifiers = [
 - Python版互換性確認
 
 #### 4.5.2 リソース管理
-- 動的モジュール読み込み・クリーンアップ
+- プラグインの遅延読み込み
 - 一時ファイル処理
 - データベース接続管理
 - 並列実行でのメモリ管理
+- ASTキャッシュによるメモリ効率化
 
 ---
 
@@ -422,10 +447,11 @@ src-check --version                    # バージョン情報
 - 段階的移行サポート
 
 ### 7.3 セキュリティ制約
-- コード実行なし（AST解析のみ）
-- サンドボックス化された動的インポート
+- コード実行なし（静的AST解析のみ）
+- プラグインの事前登録制による安全性確保
 - 入力検証の徹底
 - 機密情報の取り扱い注意
+- 外部プラグインの署名検証（オプション）
 
 ---
 

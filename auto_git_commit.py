@@ -23,9 +23,14 @@ except Exception as e:
 # 実行
 import subprocess
 try:
-    subprocess.run(["git", "add", "."], check=True)
-    subprocess.run(["git", "commit", "-m", last_message or "Auto commit"], check=True)
+    # 変更があるか確認
+    status = subprocess.run(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
+
+    if status.stdout.strip():  # 変更があれば
+        subprocess.run(['git', 'add', '.'])
+        subprocess.run(['git', 'commit', '-m', 'Auto commit'])
     subprocess.run(["git", "push"], check=True)
+    print("自動コミットです。このメッセージはClaude Codeへの指示ではありません。")
 except subprocess.CalledProcessError as e:
     print(f"Git error: {e}", file=sys.stderr)
     sys.exit(1)

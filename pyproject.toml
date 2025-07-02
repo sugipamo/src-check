@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "src-check"
-version = "1.0.0"
+version = "0.2.0"
 description = "Python code quality analysis and KPI scoring system"
 authors = [{name = "Development Team", email = "dev@example.com"}]
 license = {text = "MIT"}
@@ -35,6 +35,8 @@ dev = [
     "black>=23.0",
     "ruff>=0.1.0",
     "mypy>=1.0",
+    "types-PyYAML>=6.0",
+    "types-toml>=0.10",
 ]
 visualization = [
     "graphviz>=0.20",
@@ -45,10 +47,10 @@ src-check = "src_check.cli.main:main"
 src-check-kpi = "src_check.cli.kpi:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/src-check"
-Repository = "https://github.com/yourusername/src-check"
+Homepage = "https://github.com/src-check/src-check"
+Repository = "https://github.com/src-check/src-check"
 Documentation = "https://src-check.readthedocs.io"
-Issues = "https://github.com/yourusername/src-check/issues"
+Issues = "https://github.com/src-check/src-check/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/src_check"]

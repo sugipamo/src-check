@@ -104,7 +104,7 @@ class TextFormatter(BaseFormatter):
         total_files = len(results) if results else 0
 
         # Count by severity
-        severity_counts = defaultdict(int)
+        severity_counts: Dict[Severity, int] = defaultdict(int)
         for file_results in results.values():
             for result in file_results:
                 severity_counts[result.severity] += 1

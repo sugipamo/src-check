@@ -38,7 +38,7 @@ class SrcCheckConfig:
         Returns:
             Checker configuration dictionary
         """
-        return self.checkers.get(checker_name, {})
+        return self.checkers.get(checker_name, {})  # type: ignore
 
     def is_checker_enabled(self, checker_name: str) -> bool:
         """Check if a checker is enabled.
@@ -50,7 +50,7 @@ class SrcCheckConfig:
             True if enabled, False otherwise
         """
         checker_config = self.get_checker_config(checker_name)
-        return checker_config.get("enabled", True)
+        return bool(checker_config.get("enabled", True))
 
 
 class ConfigLoader:
@@ -170,7 +170,8 @@ class ConfigLoader:
     def _load_json(self, path: Path) -> Dict[str, Any]:
         """Load JSON configuration file."""
         with open(path, "r") as f:
-            return json.load(f)
+            data: Dict[str, Any] = json.load(f)
+            return data
 
     def _load_pyproject_toml(self, path: Path) -> Dict[str, Any]:
         """Load configuration from pyproject.toml."""
@@ -184,7 +185,9 @@ class ConfigLoader:
             data = toml.load(f)
 
         # Extract src-check configuration
-        return data.get("tool", {}).get("src-check", {})
+        tool_config = data.get("tool", {})
+        src_check_config: Dict[str, Any] = tool_config.get("src-check", {})
+        return src_check_config
 
     def _merge_with_defaults(self, config_data: Dict[str, Any]) -> Dict[str, Any]:
         """Merge user configuration with defaults.
@@ -202,12 +205,15 @@ class ConfigLoader:
         for key, value in config_data.items():
             if key == "checkers" and isinstance(value, dict):
                 # Merge checker configs
-                merged_checkers = merged.get("checkers", {}).copy()
-                merged_checkers.update(value)
-                merged["checkers"] = merged_checkers
+                merged_checkers = merged.get("checkers", {})
+                if isinstance(merged_checkers, dict):
+                    merged_checkers = merged_checkers.copy()
+                    merged_checkers.update(value)
+                    merged["checkers"] = merged_checkers
             elif key == "exclude" and isinstance(value, list):
                 # Extend exclude list
-                merged["exclude"].extend(value)
+                if isinstance(merged.get("exclude"), list):
+                    merged["exclude"].extend(value)
             else:
                 merged[key] = value
 

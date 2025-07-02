@@ -63,6 +63,7 @@ class CheckResult:
     severity: Severity = Severity.MEDIUM
     category: str = "general"
     metadata: Dict[str, Any] = field(default_factory=dict)
+    rule_id: Optional[str] = None
 
     @property
     def passed(self) -> bool:
@@ -80,7 +81,7 @@ class CheckResult:
         line: int,
         message: str,
         column: Optional[int] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Add a failure location."""
         failure = FailureLocation(
@@ -101,6 +102,7 @@ class CheckResult:
             "severity": self.severity.value,
             "category": self.category,
             "metadata": self.metadata,
+            "rule_id": self.rule_id,
         }
 
     def format_report(self, verbose: bool = False) -> str:

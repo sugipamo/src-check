@@ -39,7 +39,7 @@ class JsonFormatter(BaseFormatter):
         for file_path, file_results in results.items():
             output_data["files"][file_path] = [
                 {
-                    "rule_id": result.rule_id,
+                    "rule_id": result.rule_id or result.checker_name,
                     "severity": result.severity.value,
                     "category": result.category,
                     "failure_count": result.failure_count,

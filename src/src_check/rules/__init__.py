@@ -4,6 +4,7 @@ Quality checker rules for src-check.
 
 from src_check.rules.architecture import ArchitectureChecker
 from src_check.rules.code_quality import CodeQualityChecker
+from src_check.rules.documentation import DocumentationChecker
 from src_check.rules.security import SecurityChecker
 from src_check.rules.test_quality import TestQualityChecker
 
@@ -12,4 +13,5 @@ __all__ = [
     "CodeQualityChecker",
     "ArchitectureChecker",
     "TestQualityChecker",
+    "DocumentationChecker",
 ]

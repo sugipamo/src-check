@@ -82,8 +82,9 @@ class MarkdownFormatter(BaseFormatter):
                             location = "File"
                             message = "No specific location"
 
+                        rule_id = result.rule_id or result.checker_name
                         output.append(
-                            f"| {severity_badge} | `{result.rule_id}` | {message} | {location} |"
+                            f"| {severity_badge} | `{rule_id}` | {message} | {location} |"
                         )
 
                     output.append("")
@@ -130,7 +131,7 @@ class MarkdownFormatter(BaseFormatter):
         total_issues = sum(len(r) for r in results.values())
 
         # Count by severity
-        severity_counts = defaultdict(int)
+        severity_counts: Dict[Severity, int] = defaultdict(int)
         for file_results in results.values():
             for result in file_results:
                 severity_counts[result.severity] += 1
@@ -146,7 +147,7 @@ class MarkdownFormatter(BaseFormatter):
 
     def _format_issues_by_severity(self, results: Dict[str, List[CheckResult]]) -> str:
         """Format issues by severity breakdown."""
-        severity_counts = defaultdict(int)
+        severity_counts: Dict[Severity, int] = defaultdict(int)
         for file_results in results.values():
             for result in file_results:
                 severity_counts[result.severity] += 1

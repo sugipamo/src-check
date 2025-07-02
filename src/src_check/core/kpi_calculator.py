@@ -50,8 +50,8 @@ class KPICalculator:
             )
 
         # Count issues by severity
-        severity_counts = defaultdict(int)
-        category_issues = defaultdict(list)
+        severity_counts: Dict[Severity, int] = defaultdict(int)
+        category_issues: Dict[str, List[CheckResult]] = defaultdict(list)
 
         for result in results:
             severity_counts[result.severity] += 1

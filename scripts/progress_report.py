@@ -3,7 +3,6 @@
 Generate progress report for src-check project.
 """
 
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
@@ -74,7 +73,7 @@ Documentation      : {'█' * int(progress['docs']/5)}{'░' * (20-int(progress[
     for todo in todos:
         report += f"- {todo['status']} {todo['task']} (優先度: {todo['priority']})\n"
     
-    report += f"""
+    report += """
 ### Recent Achievements:
 """
     

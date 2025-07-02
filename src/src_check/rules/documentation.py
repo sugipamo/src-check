@@ -99,8 +99,7 @@ class DocstringVisitor(ast.NodeVisitor):
             has_params = len(params) > 0 or node.args.vararg or node.args.kwarg
 
         # Check for parameter documentation
-        if has_params and params:
-            if not self._has_param_documentation(docstring, params):
+        if has_params and params and not self._has_param_documentation(docstring, params):
                 self.issues.append(
                     (
                         node.lineno,
@@ -111,20 +110,18 @@ class DocstringVisitor(ast.NodeVisitor):
         # Check for return documentation (skip None returns)
         if has_return and node.name != "__init__":
             # Skip if return type is None
-            if node.returns:
-                # Check for None in various forms
-                if (
-                    (hasattr(node.returns, "id") and node.returns.id == "None")
-                    or (
-                        isinstance(node.returns, ast.Constant)
-                        and node.returns.value is None
-                    )
-                    or (
-                        isinstance(node.returns, ast.NameConstant)
-                        and node.returns.value is None
-                    )
-                ):
-                    return
+            if node.returns and (
+                (hasattr(node.returns, "id") and node.returns.id == "None")
+                or (
+                    isinstance(node.returns, ast.Constant)
+                    and node.returns.value is None
+                )
+                or (
+                    isinstance(node.returns, ast.NameConstant)
+                    and node.returns.value is None
+                )
+            ):
+                return
             if not self._has_return_documentation(docstring):
                 self.issues.append(
                     (

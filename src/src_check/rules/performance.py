@@ -71,34 +71,27 @@ class PerformanceVisitor(ast.NodeVisitor):
         self._check_string_concatenation_in_loop(node)
 
         # Check for repeated function calls in loop condition
-        if isinstance(node.iter, ast.Call):
-            if isinstance(node.iter.func, ast.Name) and node.iter.func.id == "range":
-                if node.iter.args and isinstance(node.iter.args[0], ast.Call):
-                    if (
-                        isinstance(node.iter.args[0].func, ast.Name)
-                        and node.iter.args[0].func.id == "len"
-                    ):
-                        # Check if len() is called on another function call
-                        if node.iter.args[0].args and isinstance(
-                            node.iter.args[0].args[0], ast.Call
-                        ):
-                            self.issues.append(
-                                FailureLocation(
-                                    file_path=self.file_path,
-                                    line=node.lineno,
-                                    column=node.col_offset,
-                                    message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
-                                )
-                            )
-                    else:
-                        self.issues.append(
-                            FailureLocation(
-                                file_path=self.file_path,
-                                line=node.lineno,
-                                column=node.col_offset,
-                                message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
-                            )
-                        )
+        if isinstance(node.iter, ast.Call) and isinstance(node.iter.func, ast.Name) and node.iter.func.id == "range" and node.iter.args and isinstance(node.iter.args[0], ast.Call):
+            # Check if it's range(len(func_call())) - this is bad
+            if isinstance(node.iter.args[0].func, ast.Name) and node.iter.args[0].func.id == "len" and node.iter.args[0].args and isinstance(node.iter.args[0].args[0], ast.Call):
+                self.issues.append(
+                    FailureLocation(
+                        file_path=self.file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
+                    )
+                )
+            # Check if it's range(func_call()) but NOT range(len(...))
+            elif not (isinstance(node.iter.args[0].func, ast.Name) and node.iter.args[0].func.id == "len"):
+                self.issues.append(
+                    FailureLocation(
+                        file_path=self.file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
+                    )
+                )
 
         self.generic_visit(node)
         self.loop_depth -= 1
@@ -124,12 +117,7 @@ class PerformanceVisitor(ast.NodeVisitor):
     def visit_AugAssign(self, node: ast.AugAssign) -> None:
         """Check for inefficient augmented assignments in loops."""
         if self.loop_depth > 0 and isinstance(node.op, ast.Add):
-            # Check if we're doing += on strings
-            if (
-                isinstance(node.value, ast.Call)
-                and isinstance(node.value.func, ast.Name)
-                and node.value.func.id == "str"
-            ):
+            if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name) and node.value.func.id == "str":
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
@@ -138,25 +126,21 @@ class PerformanceVisitor(ast.NodeVisitor):
                         message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
                     )
                 )
-            elif isinstance(node.value, (ast.Constant, ast.BinOp)):
-                # This could be string concatenation too
-                if self._is_string_type(node.value):
-                    self.issues.append(
-                        FailureLocation(
-                            file_path=self.file_path,
-                            line=node.lineno,
-                            column=node.col_offset,
-                            message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
-                        )
+            elif isinstance(node.value, (ast.Constant, ast.BinOp)) and self._is_string_type(node.value):
+                self.issues.append(
+                    FailureLocation(
+                        file_path=self.file_path,
+                        line=node.lineno,
+                        column=node.col_offset,
+                        message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
                     )
+                )
 
         self.generic_visit(node)
 
     def visit_BinOp(self, node: ast.BinOp) -> None:
         """Check for inefficient string concatenation."""
-        if self.loop_depth > 0 and isinstance(node.op, ast.Add):
-            # Check if we're concatenating strings
-            if self._is_string_type(node.left) or self._is_string_type(node.right):
+        if self.loop_depth > 0 and isinstance(node.op, ast.Add) and (self._is_string_type(node.left) or self._is_string_type(node.right)):
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
@@ -191,11 +175,9 @@ class PerformanceVisitor(ast.NodeVisitor):
     def visit_Call(self, node: ast.Call) -> None:
         """Check for performance issues in function calls."""
         # Check for repeated list() conversions
-        if isinstance(node.func, ast.Name) and node.func.id == "list":
-            if node.args and isinstance(node.args[0], ast.Call):
-                inner_call = node.args[0]
-                if isinstance(inner_call.func, ast.Name):
-                    if inner_call.func.id in ["list", "tuple"]:
+        if isinstance(node.func, ast.Name) and node.func.id == "list" and node.args and isinstance(node.args[0], ast.Call):
+            inner_call = node.args[0]
+            if isinstance(inner_call.func, ast.Name) and inner_call.func.id in ["list", "tuple"]:
                         self.issues.append(
                             FailureLocation(
                                 file_path=self.file_path,
@@ -206,10 +188,7 @@ class PerformanceVisitor(ast.NodeVisitor):
                         )
 
         # Check for global function calls in tight loops
-        if self.loop_depth > 0 and isinstance(node.func, ast.Name):
-            if node.func.id in ["len", "sum", "max", "min"] and self._is_loop_invariant(
-                node
-            ):
+        if self.loop_depth > 0 and isinstance(node.func, ast.Name) and node.func.id in ["len", "sum", "max", "min"] and self._is_loop_invariant(node):
                 self.issues.append(
                     FailureLocation(
                         file_path=self.file_path,
@@ -248,14 +227,10 @@ class PerformanceVisitor(ast.NodeVisitor):
                     # This is a heuristic - we can't always know the type
                     # but we can check for common patterns
                     for parent_stmt in node.body:
-                        if isinstance(parent_stmt, ast.Assign):
-                            if any(
-                                isinstance(t, ast.Name) and t.id == stmt.target.id
-                                for t in parent_stmt.targets
-                            ):
-                                if isinstance(
-                                    parent_stmt.value, ast.Constant
-                                ) and isinstance(parent_stmt.value.value, str):
+                        if isinstance(parent_stmt, ast.Assign) and any(
+                            isinstance(t, ast.Name) and t.id == stmt.target.id
+                            for t in parent_stmt.targets
+                        ) and isinstance(parent_stmt.value, ast.Constant) and isinstance(parent_stmt.value.value, str):
                                     self.issues.append(
                                         FailureLocation(
                                             file_path=self.file_path,

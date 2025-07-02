@@ -1,13 +1,10 @@
 """DeprecationCheckerのテスト."""
 
 import ast
-import asyncio
 import sys
-from pathlib import Path
 
 import pytest
 
-from src_check.models.check_result import Severity
 from src_check.rules.deprecation import DeprecationChecker
 
 

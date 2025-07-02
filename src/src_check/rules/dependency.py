@@ -80,11 +80,10 @@ class DependencyChecker(BaseChecker):
                     module_name = alias.name.split(".")[0]
                     file_imports.add(module_name)
                     self.project_imports.add(module_name)
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    module_name = node.module.split(".")[0]
-                    file_imports.add(module_name)
-                    self.project_imports.add(module_name)
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                module_name = node.module.split(".")[0]
+                file_imports.add(module_name)
+                self.project_imports.add(module_name)
 
         self.file_imports[str(file_path)] = file_imports
 
@@ -109,11 +108,10 @@ class DependencyChecker(BaseChecker):
                         module_name = alias.name.split(".")[0]
                         file_imports.add(module_name)
                         self.project_imports.add(module_name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        module_name = node.module.split(".")[0]
-                        file_imports.add(module_name)
-                        self.project_imports.add(module_name)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    module_name = node.module.split(".")[0]
+                    file_imports.add(module_name)
+                    self.project_imports.add(module_name)
 
             self.file_imports[str(file_path)] = file_imports
 
@@ -258,10 +256,8 @@ class DependencyChecker(BaseChecker):
             path.append(module)
 
             for neighbor in self.import_graph.get(module, []):
-                if neighbor not in visited:
-                    cycle = has_cycle(neighbor, path.copy())
-                    if cycle:
-                        return cycle
+                if neighbor not in visited and (cycle := has_cycle(neighbor, path.copy())):
+                    return cycle
                 elif neighbor in rec_stack:
                     # Found a cycle
                     cycle_start = path.index(neighbor)

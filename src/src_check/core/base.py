@@ -5,7 +5,7 @@ Base class for all checkers.
 import ast
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from src_check.models import CheckResult
 
@@ -45,7 +45,7 @@ class BaseChecker(ABC):
         """
         pass
 
-    def is_excluded(self, file_path: str, exclude_patterns: list) -> bool:
+    def is_excluded(self, file_path: str, exclude_patterns: List[str]) -> bool:
         """
         Check if the file should be excluded from checking.
 

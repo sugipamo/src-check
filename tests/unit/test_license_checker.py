@@ -4,8 +4,6 @@ import ast
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
-import pytest
-
 from src_check.models.check_result import Severity
 from src_check.rules.license import LicenseChecker
 

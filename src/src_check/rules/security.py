@@ -369,7 +369,6 @@ class PickleUsageVisitor(ast.NodeVisitor):
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.Attribute):
-            if isinstance(node.value, ast.Name):
-                return f"{node.value.id}.{node.attr}"
+        elif isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            return f"{node.value.id}.{node.attr}"
         return ""

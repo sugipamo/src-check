@@ -4,7 +4,6 @@ Show current project metrics.
 """
 
 import ast
-import os
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -12,7 +11,7 @@ from typing import Dict, List, Tuple
 
 def count_lines(file_path: Path) -> Tuple[int, int, int]:
     """Count total lines, code lines, and comment lines."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         lines = f.readlines()
     
     total = len(lines)
@@ -25,12 +24,12 @@ def count_lines(file_path: Path) -> Tuple[int, int, int]:
 
 def analyze_complexity(file_path: Path) -> List[Tuple[str, int]]:
     """Analyze cyclomatic complexity of functions."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         content = f.read()
     
     try:
         tree = ast.parse(content)
-    except:
+    except Exception:
         return []
     
     complexities = []
@@ -67,7 +66,7 @@ def get_test_coverage() -> float:
                 parts = line.split()
                 if len(parts) >= 4:
                     return float(parts[-1].rstrip('%'))
-    except:
+    except Exception:
         pass
     
     return 0.0
@@ -127,7 +126,7 @@ def main():
     print("\n🧪 Test Coverage:")
     coverage = get_test_coverage()
     print(f"  Overall: {coverage:.1f}%")
-    print(f"  Target: 70%")
+    print("  Target: 70%")
     print(f"  Status: {'✅ PASS' if coverage >= 70 else '❌ FAIL'}")
     
     # Complexity analysis

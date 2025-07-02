@@ -8,8 +8,17 @@ and KPI scoring.
 
 import argparse
 import sys
+import logging
 from pathlib import Path
-from typing import List
+from typing import List, Optional
+
+from src_check.core.engine import AnalysisEngine
+from src_check.core.kpi_calculator import KPICalculator
+from src_check.core.registry import registry
+from src_check.core.config_loader import ConfigLoader
+from src_check.formatters.text import TextFormatter
+from src_check.formatters.json import JsonFormatter
+from src_check.formatters.markdown import MarkdownFormatter
 
 
 def parse_args() -> argparse.Namespace:
@@ -66,10 +75,32 @@ def validate_paths(paths: List[str]) -> List[Path]:
     return validated_paths
 
 
+def setup_logging(verbose: bool) -> None:
+    """Setup logging configuration."""
+    level = logging.DEBUG if verbose else logging.WARNING
+    logging.basicConfig(
+        level=level,
+        format='%(levelname)s: %(message)s'
+    )
+
+
+def get_formatter(format_type: str):
+    """Get the appropriate formatter based on format type."""
+    formatters = {
+        "text": TextFormatter(),
+        "json": JsonFormatter(),
+        "markdown": MarkdownFormatter()
+    }
+    return formatters.get(format_type, TextFormatter())
+
+
 def main() -> None:
     """Main entry point for src-check CLI."""
     try:
         args = parse_args()
+        
+        # Setup logging
+        setup_logging(args.verbose)
 
         # Validate paths
         paths = validate_paths(args.paths)
@@ -80,20 +111,70 @@ def main() -> None:
             if args.config:
                 print(f"Using config: {args.config}")
 
-        # TODO: Implement actual analysis logic
+        # Load configuration
+        config_loader = ConfigLoader()
+        if args.config:
+            config_path = Path(args.config)
+            config = config_loader.load_from_file(config_path)
+        else:
+            # Try to find config file
+            config_path = config_loader.find_config_file(Path.cwd())
+            if config_path:
+                config = config_loader.load_from_file(config_path)
+            else:
+                config = config_loader.load_default_config()
+        
+        # Discover and register plugins
         print("🔍 Starting code quality analysis...")
-        print(f"📂 Analyzing {len(paths)} path(s)")
-
-        if args.kpi_only:
-            print("📊 KPI-only mode enabled")
-
-        # Placeholder for now
-        print("✅ Analysis complete! (placeholder)")
-        print("📊 KPI Score: 75.0/100 (placeholder)")
+        registry.discover_plugins()
+        
+        # Get enabled checkers
+        checkers = []
+        for checker in registry.get_all_checkers():
+            if config.is_checker_enabled(checker.__class__.__name__):
+                checkers.append(checker)
+        
+        if args.verbose:
+            print(f"📋 Enabled checkers: {[c.name for c in checkers]}")
+        
+        # Create analysis engine
+        engine = AnalysisEngine(checkers)
+        
+        # Analyze paths
+        all_results = {}
+        for path in paths:
+            print(f"📂 Analyzing {path}...")
+            if path.is_file():
+                results = engine.analyze_file(path)
+                if results:
+                    all_results[str(path)] = results
+            else:
+                results = engine.analyze_directory(path)
+                all_results.update(results)
+        
+        # Calculate KPI score
+        calculator = KPICalculator()
+        kpi_score = calculator.calculate_project_score(all_results)
+        
+        # Format and output results
+        formatter = get_formatter(args.format)
+        output = formatter.format(all_results, kpi_score)
+        
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(output)
+            print(f"✅ Results written to {args.output}")
+        else:
+            print(output)
 
         # Exit with appropriate code
-        if args.threshold and 75.0 < args.threshold:
-            print(f"❌ Quality score below threshold ({args.threshold})")
+        if args.threshold and kpi_score.overall_score < args.threshold:
+            print(f"\n❌ Quality score {kpi_score.overall_score:.1f} below threshold ({args.threshold})")
+            sys.exit(1)
+        
+        # Exit with error if critical issues and fail_on_issues is true
+        if config.fail_on_issues and kpi_score.critical_issues > 0:
+            print(f"\n❌ Found {kpi_score.critical_issues} critical issues")
             sys.exit(1)
 
     except KeyboardInterrupt:
@@ -101,6 +182,9 @@ def main() -> None:
         sys.exit(130)
     except Exception as e:
         print(f"❌ Fatal error: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
         sys.exit(3)
 
 

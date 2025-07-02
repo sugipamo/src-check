@@ -4,7 +4,7 @@ Test quality checkers.
 
 import ast
 import re
-from typing import Optional
+from typing import Optional, List, Union
 
 from src_check.core.base import BaseChecker
 from src_check.models import CheckResult, Severity
@@ -105,7 +105,7 @@ class TestStructureVisitor(ast.NodeVisitor):
                 )
 
             # Check test length (too long tests are hard to understand)
-            if hasattr(node, "end_lineno"):
+            if hasattr(node, "end_lineno") and node.end_lineno is not None:
                 test_lines = node.end_lineno - node.lineno
                 if test_lines > 50:
                     self.result.add_failure(
@@ -125,7 +125,7 @@ class TestAssertionVisitor(ast.NodeVisitor):
     def __init__(self, file_path: str, result: CheckResult):
         self.file_path = file_path
         self.result = result
-        self.current_test = None
+        self.current_test: Optional[str] = None
         self.assertion_count = 0
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
@@ -210,7 +210,7 @@ class TestAssertionVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _get_function_name(self, node) -> str:
+    def _get_function_name(self, node: ast.expr) -> str:
         """Extract function name from AST node."""
         if isinstance(node, ast.Name):
             return node.id
@@ -282,7 +282,7 @@ class MissingTestsVisitor(ast.NodeVisitor):
     def __init__(self, file_path: str, result: CheckResult):
         self.file_path = file_path
         self.result = result
-        self.public_functions = []
+        self.public_functions: List[Union[ast.FunctionDef, ast.AsyncFunctionDef]] = []
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Track public functions."""
@@ -296,7 +296,13 @@ class MissingTestsVisitor(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Track async public functions."""
-        self.visit_FunctionDef(node)
+        # Skip private functions and special methods
+        if not node.name.startswith("_"):
+            # Skip simple getters/setters
+            if not self._is_simple_accessor(node):
+                self.public_functions.append(node)
+
+        self.generic_visit(node)
 
     def finalize(self) -> None:
         """Report findings after visiting."""
@@ -310,7 +316,7 @@ class MissingTestsVisitor(ast.NodeVisitor):
                 code_snippet=f"Functions: {', '.join(f.name for f in self.public_functions[:3])}...",
             )
 
-    def _is_simple_accessor(self, node: ast.FunctionDef) -> bool:
+    def _is_simple_accessor(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> bool:
         """Check if function is a simple getter/setter."""
         # Simple heuristic: function with one line that returns an attribute
         if len(node.body) == 1:

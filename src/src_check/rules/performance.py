@@ -90,14 +90,14 @@ class PerformanceVisitor(ast.NodeVisitor):
                 )
             )
         ):
-                self.issues.append(
-                    FailureLocation(
-                        file_path=self.file_path,
-                        line=node.lineno,
-                        column=node.col_offset,
-                        message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
-                    )
+            self.issues.append(
+                FailureLocation(
+                    file_path=self.file_path,
+                    line=node.lineno,
+                    column=node.col_offset,
+                    message="[PERF001] Function call in loop range may be evaluated multiple times. Consider storing the result in a variable before the loop",
                 )
+            )
 
         self.generic_visit(node)
         self.loop_depth -= 1
@@ -137,14 +137,14 @@ class PerformanceVisitor(ast.NodeVisitor):
                 )
             )
         ):
-                self.issues.append(
-                    FailureLocation(
-                        file_path=self.file_path,
-                        line=node.lineno,
-                        column=node.col_offset,
-                        message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
-                    )
+            self.issues.append(
+                FailureLocation(
+                    file_path=self.file_path,
+                    line=node.lineno,
+                    column=node.col_offset,
+                    message="[PERF003] String concatenation in loop is inefficient. Use list.append() and ''.join() instead",
                 )
+            )
 
         self.generic_visit(node)
 
@@ -236,54 +236,55 @@ class PerformanceVisitor(ast.NodeVisitor):
                 and not self._uses_loop_variable(stmt.value, node.target)
                 and isinstance(stmt.value, (ast.BinOp, ast.Call))
             ):
-                        self.issues.append(
-                            FailureLocation(
-                                file_path=self.file_path,
-                                line=stmt.lineno,
-                                column=stmt.col_offset,
-                                message="[PERF007] Loop-invariant computation could be moved outside the loop. This value doesn't change during loop iterations",
-                            )
-                        )
+                self.issues.append(
+                    FailureLocation(
+                        file_path=self.file_path,
+                        line=stmt.lineno,
+                        column=stmt.col_offset,
+                        message="[PERF007] Loop-invariant computation could be moved outside the loop. This value doesn't change during loop iterations",
+                    )
+                )
 
     def _check_string_concatenation_in_loop(self, node: ast.For) -> None:
         """Check for string concatenation patterns in loops."""
         for stmt in ast.walk(node):
             if (
-                isinstance(stmt, ast.AugAssign) 
+                isinstance(stmt, ast.AugAssign)
                 and isinstance(stmt.op, ast.Add)
                 and isinstance(stmt.target, ast.Name)
             ):
-                    # This is a heuristic - we can't always know the type
-                    # but we can check for common patterns
-                    for parent_stmt in node.body:
-                        if (
-                            isinstance(parent_stmt, ast.Assign)
-                            and any(
-                                isinstance(t, ast.Name) and t.id == stmt.target.id
-                                for t in parent_stmt.targets
+                # This is a heuristic - we can't always know the type
+                # but we can check for common patterns
+                for parent_stmt in node.body:
+                    if (
+                        isinstance(parent_stmt, ast.Assign)
+                        and any(
+                            isinstance(t, ast.Name) and t.id == stmt.target.id
+                            for t in parent_stmt.targets
+                        )
+                        and isinstance(parent_stmt.value, ast.Constant)
+                        and isinstance(parent_stmt.value.value, str)
+                    ):
+                        self.issues.append(
+                            FailureLocation(
+                                file_path=self.file_path,
+                                line=stmt.lineno,
+                                column=stmt.col_offset,
+                                message="[PERF008] String concatenation with += in loop is inefficient. Use list.append() and ''.join() for better performance",
                             )
-                            and isinstance(parent_stmt.value, ast.Constant)
-                            and isinstance(parent_stmt.value.value, str)
-                        ):
-                            self.issues.append(
-                                FailureLocation(
-                                    file_path=self.file_path,
-                                    line=stmt.lineno,
-                                    column=stmt.col_offset,
-                                    message="[PERF008] String concatenation with += in loop is inefficient. Use list.append() and ''.join() for better performance",
-                                )
-                            )
+                        )
 
     def _is_string_type(self, node: ast.AST) -> bool:
         """Heuristic to check if a node is likely a string."""
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return True
-        if isinstance(node, ast.Call):
-            if isinstance(node.func, ast.Name) and node.func.id == "str":
-                return True
-        if isinstance(node, ast.JoinedStr):  # f-string
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "str"
+        ):
             return True
-        return False
+        return isinstance(node, ast.JoinedStr)  # f-string
 
     def _uses_loop_variable(self, node: ast.AST, loop_var: ast.AST) -> bool:
         """Check if an expression uses the loop variable."""
@@ -295,11 +296,11 @@ class PerformanceVisitor(ast.NodeVisitor):
             return False
 
         for child in ast.walk(node):
-            if isinstance(child, ast.Name):
-                if (isinstance(loop_var, ast.Name) and child.id == loop_var_name) or (
-                    isinstance(loop_var, ast.Tuple) and child.id in loop_var_names
-                ):
-                    return True
+            if isinstance(child, ast.Name) and (
+                (isinstance(loop_var, ast.Name) and child.id == loop_var_name)
+                or (isinstance(loop_var, ast.Tuple) and child.id in loop_var_names)
+            ):
+                return True
 
         return False
 

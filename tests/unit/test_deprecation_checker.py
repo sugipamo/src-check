@@ -266,7 +266,7 @@ this is invalid python syntax
     # 構文エラーの場合、パースが失敗するのでtry-catchで処理
     try:
         tree = ast.parse(content, filename=str(file_path))
-        result = checker.check(tree, str(file_path))
+        checker.check(tree, str(file_path))
     except SyntaxError:
         # 構文エラーは期待される動作
         pass

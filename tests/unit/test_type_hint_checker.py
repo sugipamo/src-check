@@ -197,6 +197,8 @@ def process_dict(data: dict) -> list:
     """Process dictionary - missing generic parameters."""
     return list(data.values())
 
+from typing import Dict, List
+
 def process_typed_dict(data: Dict[str, int]) -> List[int]:
     """Process typed dictionary - properly typed."""
     return list(data.values())

@@ -120,7 +120,9 @@ class KPIScore:
         # Ensure scores don't go below 0
         for category_score in category_scores.values():
             category_score.raw_score = max(0, category_score.raw_score)
-            category_score.weighted_score = category_score.raw_score * category_score.weight
+            category_score.weighted_score = (
+                category_score.raw_score * category_score.weight
+            )
 
         # Calculate total score
         total_score = sum(cat.weighted_score for cat in category_scores.values())

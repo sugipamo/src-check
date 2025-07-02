@@ -2,7 +2,6 @@
 Integration tests for analysis workflow.
 """
 
-
 import pytest
 
 

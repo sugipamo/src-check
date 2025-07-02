@@ -2,7 +2,6 @@
 Unit tests for data models.
 """
 
-
 import pytest
 
 from src_check.models import (

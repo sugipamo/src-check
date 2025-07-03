@@ -386,20 +386,6 @@ class TestPluginRegistry:
         """Test that global registry has checkers registered."""
         checkers = registry.list_checkers()
 
-        # Should have all our checkers registered
-        expected_checkers = [
-            "SecurityChecker",
-            "CodeQualityChecker",
-            "ArchitectureChecker",
-            "TestQualityChecker",
-            "DocumentationChecker",
-            "TypeHintChecker",
-            "PerformanceChecker",
-            "DependencyChecker",
-            "LicenseChecker",
-            "DeprecationChecker",
-        ]
-
         # Check that we have at least some checkers registered
         assert len(checkers) > 0
         # The registry might not have all checkers loaded yet, so just check a few exist

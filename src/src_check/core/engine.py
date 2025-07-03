@@ -200,8 +200,4 @@ class AnalysisEngine:
         ]
 
         file_str = str(file_path)
-        for pattern in default_exclude_patterns:
-            if pattern in file_str:
-                return True
-
-        return False
+        return any(pattern in file_str for pattern in default_exclude_patterns)

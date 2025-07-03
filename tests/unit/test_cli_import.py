@@ -2,7 +2,6 @@
 Import-based tests for CLI functionality to capture proper coverage.
 """
 
-import argparse
 import json
 import tempfile
 from pathlib import Path
@@ -10,8 +9,9 @@ from unittest import mock
 
 import pytest
 
+from src_check.cli.kpi import main as kpi_main
+from src_check.cli.kpi import parse_args as parse_kpi_args
 from src_check.cli.main import get_formatter, main, parse_args
-from src_check.cli.kpi import main as kpi_main, parse_args as parse_kpi_args
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.markdown import MarkdownFormatter
 from src_check.formatters.text import TextFormatter
@@ -29,7 +29,6 @@ class TestMainCLI:
             assert args.config is None
             assert args.output is None
             assert not args.verbose
-            assert not args.disabled_checkers
             assert args.threshold is None
 
     def test_parse_args_custom(self):
@@ -60,7 +59,6 @@ class TestMainCLI:
             assert args.config == "config.yaml"
             assert args.output == "results.json"
             assert args.verbose is True
-            assert args.disabled_checkers == ["security", "documentation"]
             assert args.threshold == 80.0
 
     def test_get_formatter(self):

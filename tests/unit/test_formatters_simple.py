@@ -3,7 +3,6 @@ Simple unit tests for formatter modules to improve coverage.
 """
 
 import json
-from unittest import mock
 
 import pytest
 

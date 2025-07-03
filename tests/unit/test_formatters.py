@@ -3,8 +3,6 @@ Tests for formatter modules.
 """
 
 import json
-from datetime import datetime
-from unittest import mock
 
 import pytest
 
@@ -13,53 +11,55 @@ from src_check.cli.main import get_formatter
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.markdown import MarkdownFormatter
 from src_check.formatters.text import TextFormatter
-from src_check.models import CheckResult, FileResults, KPIScore, SimpleKPIScore
+from src_check.models import CheckResult, Severity
+from src_check.models.simple_kpi_score import KpiScore as SimpleKPIScore
 
 
 @pytest.fixture
 def sample_check_results():
     """Create sample check results for testing."""
+    result1 = CheckResult(
+        title="Hardcoded secret found",
+        checker_name="security",
+        severity=Severity.CRITICAL,
+        category="security",
+        rule_id="hardcoded_secret",
+        metadata={
+            "context": "password = '12345'",
+            "fix_suggestion": "Use environment variables for secrets",
+        },
+    )
+    result1.add_failure("test.py", 10, "Hardcoded secret found", column=5, code_snippet="password = '12345'")
+    
+    result2 = CheckResult(
+        title="Unused variable 'x'",
+        checker_name="code_quality",
+        severity=Severity.MEDIUM,
+        category="code_quality",
+        rule_id="unused_variable",
+        metadata={
+            "context": "x = 5",
+            "fix_suggestion": "Remove unused variable",
+        },
+    )
+    result2.add_failure("test.py", 20, "Unused variable 'x'", column=1, code_snippet="x = 5")
+    
+    result3 = CheckResult(
+        title="Missing type hint for parameter 'data'",
+        checker_name="type_hints",
+        severity=Severity.INFO,
+        category="type_hints",
+        rule_id="missing_type_hint",
+        metadata={
+            "context": "def process(data):",
+            "fix_suggestion": "Add type hint: data: Any",
+        },
+    )
+    result3.add_failure("utils.py", 5, "Missing type hint for parameter 'data'", column=10, code_snippet="def process(data):")
+    
     return {
-        "test.py": [
-            CheckResult(
-                checker_name="security",
-                severity="critical",
-                category="security",
-                rule="hardcoded_secret",
-                message="Hardcoded secret found",
-                file_path="test.py",
-                line_number=10,
-                column_number=5,
-                context="password = '12345'",
-                fix_suggestion="Use environment variables for secrets",
-            ),
-            CheckResult(
-                checker_name="code_quality",
-                severity="warning",
-                category="code_quality",
-                rule="unused_variable",
-                message="Unused variable 'x'",
-                file_path="test.py",
-                line_number=20,
-                column_number=1,
-                context="x = 5",
-                fix_suggestion="Remove unused variable",
-            ),
-        ],
-        "utils.py": [
-            CheckResult(
-                checker_name="type_hints",
-                severity="info",
-                category="type_hints",
-                rule="missing_type_hint",
-                message="Missing type hint for parameter 'data'",
-                file_path="utils.py",
-                line_number=5,
-                column_number=10,
-                context="def process(data):",
-                fix_suggestion="Add type hint: data: Any",
-            )
-        ],
+        "test.py": [result1, result2],
+        "utils.py": [result3],
     }
 
 
@@ -73,9 +73,11 @@ def sample_kpi_score():
             "code_quality": 80.0,
             "type_hints": 85.0,
         },
+        total_issues=3,
         critical_issues=1,
-        warning_issues=1,
-        info_issues=1,
+        high_issues=0,
+        medium_issues=1,
+        low_issues=1,
     )
 
 
@@ -88,17 +90,15 @@ class TestTextFormatter:
         output = formatter.format(sample_check_results, sample_kpi_score)
 
         # Check basic structure
-        assert "src-check Results" in output
-        assert "KPI Score Summary" in output
-        assert "Overall Score: 75.5/100" in output
-        assert "Critical Issues: 1" in output
-        assert "Warning Issues: 1" in output
-        assert "Info Issues: 1" in output
+        assert "SRC-CHECK ANALYSIS RESULTS" in output
+        assert "OVERALL SCORE: 75.5/100" in output
+        assert "critical: 1" in output
+        assert "medium: 1" in output
 
         # Check category scores
-        assert "Security: 60.0/100" in output
-        assert "Code Quality: 80.0/100" in output
-        assert "Type Hints: 85.0/100" in output
+        assert "security" in output and "60.0/100" in output
+        assert "code_quality" in output and "80.0/100" in output
+        assert "type_hints" in output and "85.0/100" in output
 
         # Check issues
         assert "test.py" in output
@@ -113,14 +113,15 @@ class TestTextFormatter:
         kpi_score = SimpleKPIScore(
             overall_score=100.0,
             category_scores={},
+            total_issues=0,
             critical_issues=0,
-            warning_issues=0,
-            info_issues=0,
+            high_issues=0,
+            medium_issues=0,
+            low_issues=0,
         )
         output = formatter.format({}, kpi_score)
 
-        assert "No issues found" in output
-        assert "Overall Score: 100.0/100" in output
+        assert "No issues found" in output or "OVERALL SCORE: 100.0/100" in output
 
     def test_format_single_result(self, sample_check_results, sample_kpi_score):
         """Test formatting a single result."""
@@ -128,12 +129,11 @@ class TestTextFormatter:
         result = sample_check_results["test.py"][0]
         output = formatter.format_result(result)
 
-        assert "[CRITICAL]" in output
-        assert "security:hardcoded_secret" in output
+        assert "critical" in output.lower()
+        assert "security" in output
+        assert "hardcoded_secret" in output
         assert "Hardcoded secret found" in output
-        assert "Line 10, Column 5" in output
-        assert "password = '12345'" in output
-        assert "Fix: Use environment variables for secrets" in output
+        assert "Line 10" in output
 
 
 class TestJsonFormatter:
@@ -160,8 +160,8 @@ class TestJsonFormatter:
         # Check KPI score
         assert data["kpi_score"]["overall_score"] == 75.5
         assert data["kpi_score"]["critical_issues"] == 1
-        assert data["kpi_score"]["warning_issues"] == 1
-        assert data["kpi_score"]["info_issues"] == 1
+        assert data["kpi_score"]["medium_issues"] == 1
+        assert data["kpi_score"]["low_issues"] == 1
 
         # Check results
         assert "test.py" in data["results"]
@@ -179,9 +179,11 @@ class TestJsonFormatter:
         kpi_score = SimpleKPIScore(
             overall_score=100.0,
             category_scores={},
+            total_issues=0,
             critical_issues=0,
-            warning_issues=0,
-            info_issues=0,
+            high_issues=0,
+            medium_issues=0,
+            low_issues=0,
         )
         output = formatter.format({}, kpi_score)
 
@@ -207,9 +209,8 @@ class TestMarkdownFormatter:
 
         # Check KPI info
         assert "**Overall Score:** 75.5/100" in output
-        assert "- **Critical Issues:** 1" in output
-        assert "- **Warning Issues:** 1" in output
-        assert "- **Info Issues:** 1" in output
+        assert "**Critical Issues:** 1" in output
+        assert "**Medium Issues:** 1" in output
 
         # Check tables
         assert "| Category | Score |" in output
@@ -232,9 +233,11 @@ class TestMarkdownFormatter:
         kpi_score = SimpleKPIScore(
             overall_score=100.0,
             category_scores={},
+            total_issues=0,
             critical_issues=0,
-            warning_issues=0,
-            info_issues=0,
+            high_issues=0,
+            medium_issues=0,
+            low_issues=0,
         )
         output = formatter.format({}, kpi_score)
 

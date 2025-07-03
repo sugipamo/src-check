@@ -3,11 +3,11 @@ Tests specifically designed to improve test coverage to 70%+.
 Focus on modules with 0% coverage.
 """
 
-import tempfile
 from pathlib import Path
 from unittest import mock
 
 import pytest
+
 
 # Test simple_kpi_score module
 def test_simple_kpi_score():
@@ -33,7 +33,6 @@ def test_simple_kpi_score():
 def test_base_formatter():
     """Test the BaseFormatter ABC."""
     from src_check.formatters import BaseFormatter
-    from src_check.models.simple_kpi_score import KpiScore
     
     # Test that it's abstract
     with pytest.raises(TypeError):
@@ -75,6 +74,7 @@ def test_text_formatter_basic():
 def test_json_formatter_basic():
     """Test basic JsonFormatter functionality."""
     import json
+
     from src_check.formatters.json import JsonFormatter
     from src_check.models.simple_kpi_score import KpiScore
     

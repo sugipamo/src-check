@@ -52,7 +52,7 @@ def parse_args() -> argparse.Namespace:
         "--history", action="store_true", help="Show historical KPI trends"
     )
 
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument("--version", action="version", version="%(prog)s 0.2.0")
 
     return parser.parse_args()
 

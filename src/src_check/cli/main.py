@@ -105,7 +105,7 @@ def main() -> None:
         paths = validate_paths(args.paths)
 
         if args.verbose:
-            print("src-check v1.0.0")
+            print("src-check v0.2.0")
             print(f"Analyzing paths: {[str(p) for p in paths]}")
             if args.config:
                 print(f"Using config: {args.config}")

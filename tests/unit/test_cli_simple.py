@@ -2,14 +2,12 @@
 Simple unit tests for CLI modules to improve coverage.
 """
 
-import argparse
-import sys
 from unittest import mock
 
 import pytest
 
-from src_check.cli.main import get_formatter, parse_args, setup_logging, validate_paths
 from src_check.cli.kpi import parse_args as parse_kpi_args
+from src_check.cli.main import get_formatter, parse_args, setup_logging, validate_paths
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.text import TextFormatter
 

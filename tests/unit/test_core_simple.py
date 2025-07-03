@@ -6,13 +6,13 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
-import pytest
 import yaml
 
 from src_check.core.config_loader import ConfigLoader, SrcCheckConfig
 from src_check.core.engine import AnalysisEngine
 from src_check.core.kpi_calculator import KPICalculator
-from src_check.core.registry import PluginRegistry as CheckerRegistry, registry
+from src_check.core.registry import PluginRegistry as CheckerRegistry
+from src_check.core.registry import registry
 from src_check.models import CheckResult
 
 

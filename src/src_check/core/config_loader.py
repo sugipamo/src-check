@@ -30,13 +30,16 @@ class SrcCheckConfig:
             self.checkers = checkers_data
         else:
             # If dict, extract enabled checkers
-            self.checkers = [name for name, config in checkers_data.items() 
-                           if config.get("enabled", True)]
+            self.checkers = [
+                name
+                for name, config in checkers_data.items()
+                if config.get("enabled", True)
+            ]
         self._checkers_config = checkers_data if isinstance(checkers_data, dict) else {}
         self.output_format = data.get("output_format", "text")
         self.fail_on_issues = data.get("fail_on_issues", True)
         self.severity_threshold = data.get("severity_threshold", "low")
-        
+
         # Additional attributes expected by tests
         self.file_patterns = data.get("file_patterns", ["*.py"])
         self.ignore_patterns = data.get("ignore_patterns", self.exclude)
@@ -113,7 +116,7 @@ class ConfigLoader:
         "file_patterns": ["*.py"],
         "checkers": [
             "SecurityChecker",
-            "CodeQualityChecker", 
+            "CodeQualityChecker",
             "ArchitectureChecker",
             "TestQualityChecker",
             "DocumentationChecker",
@@ -274,11 +277,11 @@ class ConfigLoader:
         """
         if config_path:
             return self.load_from_file(Path(config_path))
-        
+
         # Try to find config file in current directory
         config_file = self.find_config_file(Path.cwd())
         if config_file:
             return self.load_from_file(config_file)
-        
+
         # Return default config
         return self.load_default_config()

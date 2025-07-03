@@ -57,7 +57,7 @@ def parse_args() -> argparse.Namespace:
         nargs="+",
         help="Specific checkers to use",
     )
-    
+
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose output"
     )

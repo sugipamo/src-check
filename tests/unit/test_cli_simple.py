@@ -44,14 +44,14 @@ class TestMainCLI:
         with mock.patch("logging.basicConfig") as mock_config:
             setup_logging(True)
             mock_config.assert_called_once()
-            
+
     def test_validate_paths(self):
         """Test validate_paths function."""
         # Test with current directory
         paths = validate_paths(["."])
         assert len(paths) == 1
         assert paths[0].is_dir()
-        
+
         # Test with non-existent path
         with pytest.raises(SystemExit):
             validate_paths(["non_existent_path"])

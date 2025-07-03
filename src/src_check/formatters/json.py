@@ -22,7 +22,7 @@ class JsonFormatter(BaseFormatter):
             JSON string
         """
         from datetime import datetime
-        
+
         # Convert results to serializable format
         output_data: Dict[str, Any] = {
             "metadata": {

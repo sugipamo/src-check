@@ -230,7 +230,7 @@ class MarkdownFormatter(BaseFormatter):
             return "🟠 D"
         else:
             return "🔴 F"
-    
+
     def _get_severity_emoji(self, severity: Severity) -> str:
         """Get emoji for severity level (alias for _get_severity_badge)."""
         return self._get_severity_badge(severity)

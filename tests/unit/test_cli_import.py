@@ -96,9 +96,9 @@ class TestMainCLI:
         mock_registry.get_all_checkers.return_value = [mock_checker]
 
         # Run with basic args
-        with mock.patch("sys.argv", ["src-check", "."]), mock.patch("builtins.print"), mock.patch(
-            "src_check.cli.main.validate_paths", return_value=[Path(".")]
-        ):
+        with mock.patch("sys.argv", ["src-check", "."]), mock.patch(
+            "builtins.print"
+        ), mock.patch("src_check.cli.main.validate_paths", return_value=[Path(".")]):
             result = main()
             assert result is None  # Normal exit
 
@@ -170,7 +170,9 @@ class TestMainCLI:
             "sys.argv", ["src-check", ".", "--threshold", "90"]
         ), mock.patch("builtins.print"), mock.patch(
             "src_check.cli.main.validate_paths", return_value=[Path(".")]
-        ), pytest.raises(SystemExit) as exc_info:
+        ), pytest.raises(
+            SystemExit
+        ) as exc_info:
             main()
         assert exc_info.value.code == 1
 

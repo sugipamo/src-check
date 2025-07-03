@@ -16,4 +16,4 @@ class KpiScore:
     medium_issues: int
     low_issues: int
     warning_issues: int = 0  # Add for backwards compatibility
-    info_issues: int = 0     # Add for backwards compatibility
+    info_issues: int = 0  # Add for backwards compatibility

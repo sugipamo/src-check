@@ -32,11 +32,11 @@ jobs:
     
     - name: Run mypy
       run: |
-        mypy src_check
+        mypy src/src_check
     
     - name: Run ruff
       run: |
-        ruff check src_check
+        ruff check src/src_check
     
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'

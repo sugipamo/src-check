@@ -9,6 +9,7 @@ and quality metrics.
 import argparse
 import sys
 from pathlib import Path
+from typing import Dict, List
 
 
 def parse_args() -> argparse.Namespace:
@@ -90,21 +91,84 @@ def main() -> None:
         if args.history:
             print("📈 Historical analysis enabled")
 
-        # TODO: Implement KPI-specific analysis
-        print("\n" + "=" * 50)
-        print("📊 KPI Score Report (placeholder)")
-        print("=" * 50)
-        print("Total Score: 75.0/100")
-        print("  - Code Quality:     80.0/100")
-        print("  - Architecture:     75.0/100")
-        print("  - Test Quality:     70.0/100")
-        print("  - Security:         75.0/100")
-        print("\n✅ Good: Code quality is at a good level.")
+        # Import here to avoid circular imports
+        from src_check.core.config_loader import ConfigLoader
+        from src_check.core.engine import AnalysisEngine
+        from src_check.core.kpi_calculator import KPICalculator
+        from src_check.core.registry import CheckerRegistry
+        from src_check.formatters import get_formatter
+
+        # Load configuration
+        config_loader = ConfigLoader()
+        config = config_loader.load_config(args.config)
+
+        # Get enabled checkers
+        registry = CheckerRegistry()
+        checkers = []
+        
+        # Filter by categories if specified
+        for checker in registry.get_all_checkers():
+            checker_name = checker.__class__.__name__
+            if config.is_checker_enabled(checker_name):
+                # Filter by categories if specified
+                if args.categories:
+                    # Map checker to categories
+                    category_map = {
+                        "SecurityChecker": "security",
+                        "CodeQualityChecker": "code",
+                        "ArchitectureChecker": "architecture",
+                        "TestQualityChecker": "test",
+                        "TypeHintChecker": "code",
+                        "PerformanceChecker": "code",
+                        "DependencyChecker": "architecture",
+                        "DocumentationChecker": "code",
+                        "LicenseChecker": "security",
+                        "DeprecationChecker": "code",
+                    }
+                    checker_category = category_map.get(checker_name, "code")
+                    if checker_category in args.categories:
+                        checkers.append(checker)
+                else:
+                    checkers.append(checker)
+
+        if args.verbose:
+            print(f"📋 Enabled checkers: {[c.name for c in checkers]}")
+
+        # Create analysis engine
+        engine = AnalysisEngine(checkers)
+
+        # Analyze paths
+        all_results = {}
+        for path in paths:
+            if args.verbose:
+                print(f"🔍 Analyzing {path}...")
+            if path.is_file():
+                file_results = engine.analyze_file(path)
+                if file_results:
+                    all_results[str(path)] = file_results
+            else:
+                dir_results = engine.analyze_directory(path)
+                all_results.update(dir_results)
+
+        # Calculate KPI score
+        calculator = KPICalculator()
+        kpi_score = calculator.calculate_project_score(all_results)
+
+        # Format and output results
+        formatter = get_formatter(args.format)
+        output = formatter.format_kpi_report(kpi_score, all_results)
+
+        # Output results
+        if args.output:
+            Path(args.output).write_text(output)
+            print(f"✅ Report saved to {args.output}")
+        else:
+            print(output)
 
         # Exit with appropriate code
-        score = 75.0
+        score = kpi_score.total_score
         if args.threshold and score < args.threshold:
-            print(f"\n❌ Quality score ({score}) below threshold ({args.threshold})")
+            print(f"\n❌ Quality score ({score:.1f}) below threshold ({args.threshold})")
             sys.exit(1)
 
     except KeyboardInterrupt:

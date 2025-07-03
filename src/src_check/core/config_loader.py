@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional, cast
 
 import yaml
 
@@ -53,7 +53,8 @@ class SrcCheckConfig:
         Returns:
             Checker configuration dictionary
         """
-        return self._checkers_config.get(checker_name, {})
+        result = self._checkers_config.get(checker_name, {})
+        return cast(Dict[str, Any], result)
 
     def is_checker_enabled(self, checker_name: str) -> bool:
         """Check if a checker is enabled.
@@ -248,12 +249,8 @@ class ConfigLoader:
         # Update with user config
         for key, value in config_data.items():
             if key == "checkers" and isinstance(value, dict):
-                # Merge checker configs
-                merged_checkers = merged.get("checkers", {})
-                if isinstance(merged_checkers, dict):
-                    merged_checkers = merged_checkers.copy()
-                    merged_checkers.update(value)
-                    merged["checkers"] = merged_checkers
+                # If user provides dict format, replace the default list format
+                merged["checkers"] = value
             elif key == "exclude" and isinstance(value, list):
                 # Extend exclude list
                 existing_exclude = merged.get("exclude")

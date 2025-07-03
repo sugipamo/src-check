@@ -102,6 +102,7 @@ def get_formatter(format_type: str) -> BaseFormatter:
 
 def main() -> None:
     """Main entry point for src-check CLI."""
+    args = None
     try:
         args = parse_args()
 
@@ -192,7 +193,7 @@ def main() -> None:
         sys.exit(130)
     except Exception as e:
         print(f"❌ Fatal error: {e}", file=sys.stderr)
-        if args.verbose:
+        if args is not None and args.verbose:
             import traceback
 
             traceback.print_exc()

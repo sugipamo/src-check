@@ -15,6 +15,7 @@ from src_check.cli.main import get_formatter, main, parse_args
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.markdown import MarkdownFormatter
 from src_check.formatters.text import TextFormatter
+from src_check.models.check_result import Severity
 
 
 class TestMainCLI:
@@ -120,6 +121,7 @@ class TestMainCLI:
         # Setup mocks
         mock_config = mock.Mock()
         mock_config.is_checker_enabled.return_value = True
+        mock_config.fail_on_issues = False  # Add this attribute
 
         mock_config_instance = mock.Mock()
         mock_config_instance.find_config_file.return_value = None
@@ -131,9 +133,14 @@ class TestMainCLI:
         mock_engine.analyze_directory.return_value = {
             "test.py": [
                 mock.Mock(
-                    severity="critical",
+                    severity=Severity.CRITICAL,
                     category="security",
-                    rule="hardcoded_secret",
+                    rule_id="hardcoded_secret",
+                    checker_name="SecurityChecker",
+                    title="Hardcoded Secret Found",
+                    failure_count=1,
+                    fix_policy="Remove hardcoded secrets",
+                    failure_locations=[],
                 )
             ]
         }
@@ -142,12 +149,19 @@ class TestMainCLI:
         mock_checker = mock.Mock()
         mock_checker.name = "SecurityChecker"
         mock_checker.__class__.__name__ = "SecurityChecker"
+        mock_registry.discover_plugins.return_value = None
         mock_registry.get_all_checkers.return_value = [mock_checker]
 
         # Mock KPI calculator to return low score
         mock_kpi_calc = mock.Mock()
         mock_kpi_score = mock.Mock()
         mock_kpi_score.overall_score = 60.0  # Below threshold of 90
+        mock_kpi_score.critical_issues = 1
+        mock_kpi_score.high_issues = 0
+        mock_kpi_score.medium_issues = 0
+        mock_kpi_score.low_issues = 0
+        mock_kpi_score.total_issues = 1
+        mock_kpi_score.category_scores = {"security": 40.0}
         mock_kpi_calc.calculate_project_score.return_value = mock_kpi_score
         mock_kpi_calc_class.return_value = mock_kpi_calc
 

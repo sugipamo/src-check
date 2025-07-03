@@ -1,7 +1,7 @@
 """JSON formatter for machine-readable output."""
 
 import json
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from src_check.formatters import BaseFormatter
 from src_check.models.check_result import CheckResult
@@ -24,7 +24,7 @@ class JsonFormatter(BaseFormatter):
         from datetime import datetime
         
         # Convert results to serializable format
-        output_data = {
+        output_data: Dict[str, Any] = {
             "metadata": {
                 "version": "0.2.0",
                 "timestamp": datetime.now().isoformat(),

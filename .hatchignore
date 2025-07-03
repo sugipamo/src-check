@@ -1,0 +1,69 @@
+# Internal documentation and planning
+計画/
+old/
+*.md
+
+# Development and test artifacts
+.coverage
+coverage.xml
+.pytest_cache/
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.src-check-results/
+benchmark_results.json
+benchmarks/
+reports/
+next-steps.md
+development-cycle.md
+security-checklist.md
+security-migration-plan.md
+requirements-specification.md
+
+# Virtual environments
+.venv/
+venv/
+test-install/
+
+# Configuration files
+.pypirc
+.python-version
+.gitignore
+.coveragerc
+Makefile
+pytest.ini
+uv.lock
+
+# Scripts (development only)
+scripts/
+
+# Documentation source
+docs/
+
+# Sample projects
+sample-project/
+
+# Cache files
+*.src-check.cache
+*.pyc
+__pycache__/
+
+# Version control
+.git/
+.github/
+
+# Build artifacts (already handled by hatchling)
+dist/
+build/
+*.egg-info/
+
+# Test files
+tests/
+conftest.py
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

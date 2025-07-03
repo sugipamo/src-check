@@ -9,7 +9,7 @@ and quality metrics.
 import argparse
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Any
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,12 +95,23 @@ def main() -> None:
         from src_check.core.config_loader import ConfigLoader
         from src_check.core.engine import AnalysisEngine
         from src_check.core.kpi_calculator import KPICalculator
-        from src_check.core.registry import CheckerRegistry
-        from src_check.formatters import get_formatter
+        from src_check.core.registry import PluginRegistry as CheckerRegistry
+        from src_check.formatters.json import JsonFormatter
+        from src_check.formatters.markdown import MarkdownFormatter
+        from src_check.formatters.text import TextFormatter
+        
+        def get_formatter(format_type: str) -> Any:
+            """Get the appropriate formatter based on format type."""
+            formatters = {
+                "text": TextFormatter(),
+                "json": JsonFormatter(),
+                "markdown": MarkdownFormatter(),
+            }
+            return formatters.get(format_type, TextFormatter())
 
         # Load configuration
         config_loader = ConfigLoader()
-        config = config_loader.load_config(args.config)
+        config = config_loader.load(args.config)
 
         # Get enabled checkers
         registry = CheckerRegistry()
@@ -166,7 +177,7 @@ def main() -> None:
             print(output)
 
         # Exit with appropriate code
-        score = kpi_score.total_score
+        score = getattr(kpi_score, 'total_score', getattr(kpi_score, 'overall_score', 0.0))
         if args.threshold and score < args.threshold:
             print(f"\n❌ Quality score ({score:.1f}) below threshold ({args.threshold})")
             sys.exit(1)

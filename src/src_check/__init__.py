@@ -15,7 +15,7 @@ __email__ = "dev@example.com"
 # Package metadata
 __title__ = "src-check"
 __description__ = "Python code quality analysis and KPI scoring system"
-__url__ = "https://github.com/yourusername/src-check"
+__url__ = "https://github.com/sugipamo/src-check"
 __license__ = "MIT"
 
 # Version info tuple

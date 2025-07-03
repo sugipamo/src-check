@@ -230,7 +230,7 @@ Full documentation is available at:
 
 ## 🐛 Bug Reports
 
-Please report issues at: https://github.com/yourusername/src-check/issues
+Please report issues at: https://github.com/sugipamo/src-check/issues
 
 ---
 

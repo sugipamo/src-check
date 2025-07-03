@@ -22,7 +22,7 @@ By participating in this project, you agree to abide by our code of conduct:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/src-check.git
+git clone https://github.com/sugipamo/src-check.git
 cd src-check
 
 # Create virtual environment

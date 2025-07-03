@@ -170,7 +170,7 @@ kpi-score:
 
 ```yaml
 repos:
-  - repo: https://github.com/src-check/src-check
+  - repo: https://github.com/sugipamo/src-check
     rev: v0.2.0
     hooks:
       - id: src-check

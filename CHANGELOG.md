@@ -73,5 +73,5 @@
 - SecurityCheckerとCodeQualityCheckerの実装
 - 基本的なCLIインターフェース
 
-[0.2.0]: https://github.com/src-check/src-check/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/src-check/src-check/releases/tag/v0.1.0
+[0.2.0]: https://github.com/sugipamo/src-check/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/sugipamo/src-check/releases/tag/v0.1.0

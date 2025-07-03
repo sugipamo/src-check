@@ -39,7 +39,11 @@ def sample_kpi():
     return SimpleKPIScore(
         overall_score=75.0,
         category_scores={"security": 60.0},
+        total_issues=1,
         critical_issues=1,
+        high_issues=0,
+        medium_issues=0,
+        low_issues=0,
         warning_issues=0,
         info_issues=0,
     )

@@ -60,6 +60,13 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--kpi-only", action="store_true", help="Run KPI scoring only")
 
+    parser.add_argument(
+        "--disable",
+        nargs="+",
+        default=[],
+        help="Disable specific checkers",
+    )
+
     parser.add_argument("--version", action="version", version="%(prog)s 0.2.0")
 
     return parser.parse_args()

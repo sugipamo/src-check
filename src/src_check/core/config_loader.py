@@ -24,10 +24,25 @@ class SrcCheckConfig:
         self.version = data.get("version", "1.0")
         self.exclude = data.get("exclude", [])
         self.include = data.get("include", ["**/*.py"])
-        self.checkers = data.get("checkers", {})
+        # Handle both dict and list formats for checkers
+        checkers_data = data.get("checkers", {})
+        if isinstance(checkers_data, list):
+            self.checkers = checkers_data
+        else:
+            # If dict, extract enabled checkers
+            self.checkers = [name for name, config in checkers_data.items() 
+                           if config.get("enabled", True)]
+        self._checkers_config = checkers_data if isinstance(checkers_data, dict) else {}
         self.output_format = data.get("output_format", "text")
         self.fail_on_issues = data.get("fail_on_issues", True)
         self.severity_threshold = data.get("severity_threshold", "low")
+        
+        # Additional attributes expected by tests
+        self.file_patterns = data.get("file_patterns", ["*.py"])
+        self.ignore_patterns = data.get("ignore_patterns", self.exclude)
+        self.max_file_size = data.get("max_file_size", 1048576)  # 1MB default
+        self.parallel = data.get("parallel", False)
+        self.cache_enabled = data.get("cache_enabled", False)
 
     def get_checker_config(self, checker_name: str) -> Dict[str, Any]:
         """Get configuration for a specific checker.
@@ -38,7 +53,7 @@ class SrcCheckConfig:
         Returns:
             Checker configuration dictionary
         """
-        return self.checkers.get(checker_name, {})  # type: ignore
+        return self._checkers_config.get(checker_name, {})
 
     def is_checker_enabled(self, checker_name: str) -> bool:
         """Check if a checker is enabled.
@@ -75,15 +90,44 @@ class ConfigLoader:
             "**/*.egg-info/**",
         ],
         "include": ["**/*.py"],
-        "checkers": {
-            "SecurityChecker": {"enabled": True, "severity_threshold": "medium"},
-            "CodeQualityChecker": {"enabled": True, "max_complexity": 10},
-            "ArchitectureChecker": {"enabled": True},
-            "TestQualityChecker": {"enabled": True, "min_coverage": 80},
-        },
+        "ignore_patterns": [
+            "__pycache__",
+            "*.pyc",
+            ".git",
+            ".venv",
+            "venv",
+            "env",
+            ".env",
+            "build",
+            "dist",
+            ".eggs",
+            "*.egg-info",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".ruff_cache",
+            ".coverage",
+            "htmlcov",
+            ".tox",
+        ],
+        "file_patterns": ["*.py"],
+        "checkers": [
+            "SecurityChecker",
+            "CodeQualityChecker", 
+            "ArchitectureChecker",
+            "TestQualityChecker",
+            "DocumentationChecker",
+            "TypeHintChecker",
+            "PerformanceChecker",
+            "DependencyChecker",
+            "LicenseChecker",
+            "DeprecationChecker",
+        ],
         "output_format": "text",
-        "fail_on_issues": True,
+        "fail_on_issues": False,
         "severity_threshold": "low",
+        "max_file_size": 1048576,
+        "parallel": False,
+        "cache_enabled": False,
     }
 
     # Supported config file names
@@ -221,3 +265,23 @@ class ConfigLoader:
                 merged[key] = value
 
         return merged
+
+    def load(self, config_path: Optional[str] = None) -> SrcCheckConfig:
+        """Load configuration from file or defaults.
+
+        Args:
+            config_path: Optional path to configuration file
+
+        Returns:
+            Configuration object
+        """
+        if config_path:
+            return self.load_from_file(Path(config_path))
+        
+        # Try to find config file in current directory
+        config_file = self.find_config_file(Path.cwd())
+        if config_file:
+            return self.load_from_file(config_file)
+        
+        # Return default config
+        return self.load_default_config()

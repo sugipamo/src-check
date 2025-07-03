@@ -25,7 +25,7 @@ class MarkdownFormatter(BaseFormatter):
         output = []
 
         # Header
-        output.append("# SRC-CHECK Analysis Report")
+        output.append("# src-check Analysis Report")
         output.append(
             f"\n*Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n"
         )
@@ -230,3 +230,7 @@ class MarkdownFormatter(BaseFormatter):
             return "🟠 D"
         else:
             return "🔴 F"
+    
+    def _get_severity_emoji(self, severity: Severity) -> str:
+        """Get emoji for severity level (alias for _get_severity_badge)."""
+        return self._get_severity_badge(severity)

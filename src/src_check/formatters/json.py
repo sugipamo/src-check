@@ -21,8 +21,14 @@ class JsonFormatter(BaseFormatter):
         Returns:
             JSON string
         """
+        from datetime import datetime
+        
         # Convert results to serializable format
         output_data = {
+            "metadata": {
+                "version": "0.2.0",
+                "timestamp": datetime.now().isoformat(),
+            },
             "kpi_score": {
                 "overall_score": kpi.overall_score,
                 "category_scores": kpi.category_scores,
@@ -32,12 +38,13 @@ class JsonFormatter(BaseFormatter):
                 "medium_issues": kpi.medium_issues,
                 "low_issues": kpi.low_issues,
             },
+            "results": {},  # For backwards compatibility
             "files": {},
         }
 
-        # Add file results
+        # Add file results to both 'results' and 'files' for compatibility
         for file_path, file_results in results.items():
-            output_data["files"][file_path] = [
+            file_data = [
                 {
                     "rule_id": result.rule_id or result.checker_name,
                     "severity": result.severity.value,
@@ -56,5 +63,7 @@ class JsonFormatter(BaseFormatter):
                 }
                 for result in file_results
             ]
+            output_data["files"][file_path] = file_data
+            output_data["results"][file_path] = file_data  # Duplicate for compatibility
 
         return json.dumps(output_data, indent=2)

@@ -26,7 +26,7 @@ fi
 echo ""
 echo "2. GitHub Releaseページへのアクセス"
 echo "   以下のURLを開いてください:"
-echo "   https://github.com/yourusername/src-check/releases/new"
+echo "   https://github.com/sugipamo/src-check/releases/new"
 echo ""
 
 echo "3. Release作成フォームの入力"

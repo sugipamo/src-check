@@ -24,7 +24,7 @@ pip install src-check
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/src-check/src-check
+git clone https://github.com/sugipamo/src-check
 cd src-check
 
 # 依存関係のインストール（uvを使用）
@@ -230,7 +230,7 @@ jobs:
 ```yaml
 # .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/src-check/src-check
+  - repo: https://github.com/sugipamo/src-check
     rev: v0.2.0
     hooks:
       - id: src-check
@@ -307,5 +307,5 @@ MIT License - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
 - [ドキュメント](https://src-check.readthedocs.io)
 - [PyPI](https://pypi.org/project/src-check)
-- [GitHub](https://github.com/src-check/src-check)
-- [Issue Tracker](https://github.com/src-check/src-check/issues)
+- [GitHub](https://github.com/sugipamo/src-check)
+- [Issue Tracker](https://github.com/sugipamo/src-check/issues)

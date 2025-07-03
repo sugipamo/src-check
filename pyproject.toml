@@ -49,11 +49,11 @@ src-check = "src_check.cli.main:main"
 src-check-kpi = "src_check.cli.kpi:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/src-check"
-Documentation = "https://github.com/yourusername/src-check#readme"
-Repository = "https://github.com/yourusername/src-check"
-Issues = "https://github.com/yourusername/src-check/issues"
-Changelog = "https://github.com/yourusername/src-check/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/sugipamo/src-check"
+Documentation = "https://github.com/sugipamo/src-check#readme"
+Repository = "https://github.com/sugipamo/src-check"
+Issues = "https://github.com/sugipamo/src-check/issues"
+Changelog = "https://github.com/sugipamo/src-check/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/src_check"]

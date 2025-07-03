@@ -38,6 +38,7 @@ dev = [
     "mypy>=1.0",
     "types-PyYAML>=6.0",
     "types-toml>=0.10",
+    "psutil>=5.9.0",
 ]
 visualization = [
     "graphviz>=0.20",

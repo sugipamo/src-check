@@ -1,0 +1,14 @@
+[
+  {
+    "name": "src-check",
+    "project_path": "src",
+    "success": true,
+    "execution_time": 0.51,
+    "peak_memory_mb": 0.26,
+    "file_count": 33,
+    "line_count": 5581,
+    "files_per_second": 64.46,
+    "lines_per_second": 10902.13,
+    "timestamp": "2025-07-03 04:27:26"
+  }
+]

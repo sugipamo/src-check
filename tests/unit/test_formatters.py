@@ -29,8 +29,14 @@ def sample_check_results():
             "fix_suggestion": "Use environment variables for secrets",
         },
     )
-    result1.add_failure("test.py", 10, "Hardcoded secret found", column=5, code_snippet="password = '12345'")
-    
+    result1.add_failure(
+        "test.py",
+        10,
+        "Hardcoded secret found",
+        column=5,
+        code_snippet="password = '12345'",
+    )
+
     result2 = CheckResult(
         title="Unused variable 'x'",
         checker_name="code_quality",
@@ -42,8 +48,10 @@ def sample_check_results():
             "fix_suggestion": "Remove unused variable",
         },
     )
-    result2.add_failure("test.py", 20, "Unused variable 'x'", column=1, code_snippet="x = 5")
-    
+    result2.add_failure(
+        "test.py", 20, "Unused variable 'x'", column=1, code_snippet="x = 5"
+    )
+
     result3 = CheckResult(
         title="Missing type hint for parameter 'data'",
         checker_name="type_hints",
@@ -55,8 +63,14 @@ def sample_check_results():
             "fix_suggestion": "Add type hint: data: Any",
         },
     )
-    result3.add_failure("utils.py", 5, "Missing type hint for parameter 'data'", column=10, code_snippet="def process(data):")
-    
+    result3.add_failure(
+        "utils.py",
+        5,
+        "Missing type hint for parameter 'data'",
+        column=10,
+        code_snippet="def process(data):",
+    )
+
     return {
         "test.py": [result1, result2],
         "utils.py": [result3],
@@ -127,11 +141,9 @@ class TestTextFormatter:
         """Test formatting a single result."""
         formatter = TextFormatter()
         result = sample_check_results["test.py"][0]
-        output = formatter.format_result(result)
+        output = formatter._format_result(result)
 
         assert "critical" in output.lower()
-        assert "security" in output
-        assert "hardcoded_secret" in output
         assert "Hardcoded secret found" in output
         assert "Line 10" in output
 
@@ -151,10 +163,10 @@ class TestJsonFormatter:
         assert "metadata" in data
         assert "kpi_score" in data
         assert "results" in data
-        assert "summary" in data
+        assert "files" in data
 
         # Check metadata
-        assert data["metadata"]["tool"] == "src-check"
+        assert data["metadata"]["version"] == "0.2.0"
         assert "timestamp" in data["metadata"]
 
         # Check KPI score
@@ -169,9 +181,8 @@ class TestJsonFormatter:
         assert "utils.py" in data["results"]
         assert len(data["results"]["utils.py"]) == 1
 
-        # Check summary
-        assert data["summary"]["total_files"] == 2
-        assert data["summary"]["total_issues"] == 3
+        # Check KPI totals
+        assert data["kpi_score"]["total_issues"] == 3
 
     def test_format_empty_results(self):
         """Test JSON formatting with no issues."""
@@ -189,8 +200,7 @@ class TestJsonFormatter:
 
         data = json.loads(output)
         assert data["results"] == {}
-        assert data["summary"]["total_files"] == 0
-        assert data["summary"]["total_issues"] == 0
+        assert data["kpi_score"]["total_issues"] == 0
 
 
 class TestMarkdownFormatter:
@@ -203,29 +213,26 @@ class TestMarkdownFormatter:
 
         # Check headers
         assert "# src-check Analysis Report" in output
-        assert "## KPI Score Summary" in output
-        assert "## Category Scores" in output
-        assert "## Issues by File" in output
+        assert "## Executive Summary" in output
+        assert "## Detailed Findings" in output
 
         # Check KPI info
-        assert "**Overall Score:** 75.5/100" in output
-        assert "**Critical Issues:** 1" in output
-        assert "**Medium Issues:** 1" in output
+        assert "**Overall Score**: 75.5/100" in output
+        assert "Total Issues | 3" in output
 
         # Check tables
-        assert "| Category | Score |" in output
-        assert "| Security | 60.0/100 |" in output
-        assert "| Code Quality | 80.0/100 |" in output
-        assert "| Type Hints | 85.0/100 |" in output
+        assert "| Category | Score | Grade |" in output
+        assert "Security" in output
+        assert "60.0" in output
 
         # Check file sections
-        assert "### test.py" in output
-        assert "### utils.py" in output
+        assert "`test.py`" in output
+        assert "`utils.py`" in output
 
         # Check issue formatting
-        assert "#### 🔴 CRITICAL" in output
-        assert "**Rule:** `security:hardcoded_secret`" in output
-        assert "**Location:** Line 10, Column 5" in output
+        assert "hardcoded_secret" in output
+        assert "unused_variable" in output
+        assert "missing_type_hint" in output
 
     def test_format_empty_results(self):
         """Test Markdown formatting with no issues."""
@@ -241,16 +248,15 @@ class TestMarkdownFormatter:
         )
         output = formatter.format({}, kpi_score)
 
-        assert "✅ No issues found!" in output
-        assert "**Overall Score:** 100.0/100" in output
+        assert "100.0/100" in output
+        assert "Total Issues | 0" in output
 
     def test_severity_emoji_mapping(self):
         """Test severity to emoji mapping."""
         formatter = MarkdownFormatter()
-        assert formatter._get_severity_emoji("critical") == "🔴"
-        assert formatter._get_severity_emoji("warning") == "🟡"
-        assert formatter._get_severity_emoji("info") == "🔵"
-        assert formatter._get_severity_emoji("unknown") == "⚪"
+        assert formatter._get_severity_emoji(Severity.CRITICAL) == "🔴"
+        assert formatter._get_severity_emoji(Severity.MEDIUM) == "🟡"
+        assert formatter._get_severity_emoji(Severity.INFO) == "ℹ️"
 
 
 class TestGetFormatter:

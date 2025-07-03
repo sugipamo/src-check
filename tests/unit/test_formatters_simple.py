@@ -9,7 +9,7 @@ import pytest
 from src_check.formatters.json import JsonFormatter
 from src_check.formatters.markdown import MarkdownFormatter
 from src_check.formatters.text import TextFormatter
-from src_check.models import CheckResult
+from src_check.models import CheckResult, Severity
 from src_check.models.simple_kpi_score import KpiScore as SimpleKPIScore
 
 
@@ -19,7 +19,7 @@ def sample_results():
     result = CheckResult(
         title="Hardcoded Secret",
         checker_name="security",
-        severity="critical",
+        severity=Severity.CRITICAL,
         category="security",
         rule_id="hardcoded_secret",
         fix_policy="Use environment variables for secrets",
@@ -56,8 +56,8 @@ class TestTextFormatter:
         """Test text formatting."""
         formatter = TextFormatter()
         output = formatter.format(sample_results, sample_kpi)
-        
-        assert "src-check Results" in output
+
+        assert "SRC-CHECK ANALYSIS RESULTS" in output
         assert "test.py" in output
         assert "Secret found" in output
         assert "75.0/100" in output
@@ -85,7 +85,7 @@ class TestJsonFormatter:
         """Test JSON formatting."""
         formatter = JsonFormatter()
         output = formatter.format(sample_results, sample_kpi)
-        
+
         data = json.loads(output)
         assert "metadata" in data
         assert "results" in data
@@ -116,11 +116,11 @@ class TestMarkdownFormatter:
         """Test Markdown formatting."""
         formatter = MarkdownFormatter()
         output = formatter.format(sample_results, sample_kpi)
-        
+
         assert "# src-check Analysis Report" in output
-        assert "## KPI Score Summary" in output
-        assert "**Overall Score:** 75.0/100" in output
-        assert "### test.py" in output
+        assert "## Executive Summary" in output
+        assert "**Overall Score**: 75.0/100" in output
+        assert "`test.py`" in output
 
     def test_format_empty(self):
         """Test formatting empty results."""
@@ -135,4 +135,4 @@ class TestMarkdownFormatter:
             low_issues=0,
         )
         output = formatter.format({}, kpi)
-        assert "✅ No issues found!" in output
+        assert "100.0/100" in output

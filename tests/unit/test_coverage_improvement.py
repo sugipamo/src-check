@@ -13,7 +13,7 @@ import pytest
 def test_simple_kpi_score():
     """Test the SimpleKPIScore model."""
     from src_check.models.simple_kpi_score import KpiScore
-    
+
     score = KpiScore(
         overall_score=85.5,
         category_scores={"security": 90.0, "code_quality": 80.0},
@@ -23,7 +23,7 @@ def test_simple_kpi_score():
         medium_issues=3,
         low_issues=4,
     )
-    
+
     assert score.overall_score == 85.5
     assert score.category_scores["security"] == 90.0
     assert score.total_issues == 10
@@ -33,16 +33,16 @@ def test_simple_kpi_score():
 def test_base_formatter():
     """Test the BaseFormatter ABC."""
     from src_check.formatters import BaseFormatter
-    
+
     # Test that it's abstract
     with pytest.raises(TypeError):
         BaseFormatter()
-    
+
     # Create a concrete implementation
     class TestFormatter(BaseFormatter):
         def format(self, results, kpi):
             return "test"
-    
+
     formatter = TestFormatter()
     assert formatter.format({}, None) == "test"
 
@@ -52,7 +52,7 @@ def test_text_formatter_basic():
     """Test basic TextFormatter functionality."""
     from src_check.formatters.text import TextFormatter
     from src_check.models.simple_kpi_score import KpiScore
-    
+
     formatter = TextFormatter()
     kpi = KpiScore(
         overall_score=100.0,
@@ -63,7 +63,7 @@ def test_text_formatter_basic():
         medium_issues=0,
         low_issues=0,
     )
-    
+
     # Just test that it doesn't crash
     output = formatter.format({}, kpi)
     assert isinstance(output, str)
@@ -77,7 +77,7 @@ def test_json_formatter_basic():
 
     from src_check.formatters.json import JsonFormatter
     from src_check.models.simple_kpi_score import KpiScore
-    
+
     formatter = JsonFormatter()
     kpi = KpiScore(
         overall_score=100.0,
@@ -88,7 +88,7 @@ def test_json_formatter_basic():
         medium_issues=0,
         low_issues=0,
     )
-    
+
     output = formatter.format({}, kpi)
     # Should be valid JSON
     data = json.loads(output)
@@ -100,7 +100,7 @@ def test_markdown_formatter_basic():
     """Test basic MarkdownFormatter functionality."""
     from src_check.formatters.markdown import MarkdownFormatter
     from src_check.models.simple_kpi_score import KpiScore
-    
+
     formatter = MarkdownFormatter()
     kpi = KpiScore(
         overall_score=100.0,
@@ -111,17 +111,17 @@ def test_markdown_formatter_basic():
         medium_issues=0,
         low_issues=0,
     )
-    
+
     output = formatter.format({}, kpi)
     assert isinstance(output, str)
-    assert "# SRC-CHECK" in output
+    assert "# src-check" in output
 
 
 # Test config loader basics
 def test_config_loader_basic():
     """Test basic ConfigLoader functionality."""
     from src_check.core.config_loader import ConfigLoader
-    
+
     loader = ConfigLoader()
     # Test loading default config
     config = loader.load_default_config()
@@ -133,11 +133,11 @@ def test_config_loader_basic():
 def test_engine_basic():
     """Test basic AnalysisEngine functionality."""
     from src_check.core.engine import AnalysisEngine
-    
+
     # Test with empty checkers
     engine = AnalysisEngine([])
     assert engine.checkers == []
-    
+
     # Test file ignore logic
     assert engine._should_ignore_file(Path("__pycache__/test.pyc"))
     assert not engine._should_ignore_file(Path("main.py"))
@@ -147,7 +147,7 @@ def test_engine_basic():
 def test_kpi_calculator_basic():
     """Test basic KPICalculator functionality."""
     from src_check.core.kpi_calculator import KPICalculator
-    
+
     calculator = KPICalculator()
     # Test empty project
     score = calculator.calculate_project_score({})
@@ -158,18 +158,19 @@ def test_kpi_calculator_basic():
 def test_registry_basic():
     """Test basic registry functionality."""
     from src_check.core.registry import registry
-    
+
     # Test that registry has checkers
+    registry.discover_plugins()
     checkers = registry.list_checkers()
     assert len(checkers) > 0
-    assert "security" in checkers
+    assert "SecurityChecker" in checkers
 
 
 # Test CLI parse_args
 def test_cli_parse_args_basic():
     """Test CLI argument parsing."""
     from src_check.cli.main import parse_args
-    
+
     with mock.patch("sys.argv", ["src-check"]):
         args = parse_args()
         assert args.paths == ["."]
@@ -180,7 +181,7 @@ def test_cli_parse_args_basic():
 def test_kpi_cli_parse_args_basic():
     """Test KPI CLI argument parsing."""
     from src_check.cli.kpi import parse_args
-    
+
     with mock.patch("sys.argv", ["src-check-kpi"]):
         args = parse_args()
         assert args.paths == ["."]

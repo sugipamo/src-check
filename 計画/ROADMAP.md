@@ -3,7 +3,7 @@
 ## 🎯 ビジョン
 「pytestのように使いやすく、包括的で信頼性の高いPythonコード品質管理ツール」
 
-## 📅 現在の状況 (2025-07-04 09:30更新)
+## 📅 現在の状況 (2025-07-04 13:30更新)
 
 ### ✅ v0.2.0 - Functional 完了 ✅
 **テーマ**: 実用的なツールに
@@ -46,7 +46,7 @@
 ## 🚀 次期リリース計画
 
 ### v0.3.0 - Quality (4週間後)
-**テーマ**: 品質と信頼性向上
+**テーマ**: 品質と信頼性向上・文脈認識機能の実装
 - [ ] 15種類のチェッカー実装
   - [ ] ComplexityChecker（循環的複雑度チェック）
   - [ ] NamingConventionChecker（命名規則チェック）
@@ -154,12 +154,12 @@
    - メモリ使用量500MB以下
    - CPU使用率2コア以下
 
-## 🔔 緊急対応事項（2025-07-04 09:45時点）
+## 🔔 緊急対応事項（2025-07-04 13:30時点）
 
 ### 最重要タスク
-1. **環境セットアップ問題の解決** ⚠️
+1. **環境セットアップ問題の解決** ✅
    - Python 3.12-venvインストール対応済み
-   - 大量の仮想環境クリーンアップ実施
+   - 大量の仮想環境クリーンアップ実施済み
    - 開発環境の標準化必要
 
 2. **TestPyPI APIトークン設定** ⏳
@@ -438,7 +438,7 @@
 ## 📌 v0.2.0リリース最終チェックリスト
 
 ### ✅ 技術的準備（完了）
-- [x] ✅ 全テスト合格（182/182）
+- [x] ✅ 全テスト合格（182/182） - 2025-07-04 再確認済み
 - [x] ✅ mypyエラー0件
 - [x] ✅ テストカバレッジ85%以上（86.51%達成）
 - [x] ✅ バージョン統一（0.2.0）
@@ -460,18 +460,34 @@
 - [x] ✅ 公開スクリプト作成（quick_publish.sh）
 
 ### 🚀 リリース作業（残タスク）
-- [ ] **TestPyPI公開**
+- [ ] **TestPyPI公開** 🔴 最優先
   - [ ] TestPyPI APIトークン設定
+    ```bash
+    # 1. TestPyPIアカウント作成: https://test.pypi.org/account/register/
+    # 2. APIトークン生成: https://test.pypi.org/manage/account/token/
+    # 3. ~/.pypircへの設定または環境変数TWINE_USERNAME/TWINE_PASSWORD設定
+    ```
   - [ ] TestPyPIへのアップロード
+    ```bash
+    ./scripts/quick_publish.sh test
+    ```
   - [ ] インストールテスト
+    ```bash
+    pip install -i https://test.pypi.org/simple/ src-check==0.2.0
+    src-check --version
+    src-check sample-project/
+    ```
 - [ ] **PyPI正式公開**
   - [ ] PyPI APIトークン設定
   - [ ] PyPI正式公開実行
+    ```bash
+    ./scripts/quick_publish.sh prod
+    ```
   - [ ] GitHub Releasesページ作成
 - [ ] **動作確認**
-  - [ ] 複数Python環境でのテスト（3.8, 3.9, 3.10, 3.11）
+  - [ ] 複数Python環境でのテスト（3.8, 3.9, 3.10, 3.11, 3.12）
   - [ ] Windows/Mac/Linuxでの動作確認
 
 ---
 
-更新日: 2025-07-04 09:45（フィードバック対応・venv環境整理）
+更新日: 2025-07-04 13:30（ROADMAP整理・次期タスク計画準備）

@@ -4,6 +4,7 @@ pytest configuration and shared fixtures.
 
 import sys
 from pathlib import Path
+from typing import Callable
 
 import pytest
 
@@ -13,10 +14,10 @@ sys.path.insert(0, str(src_path))
 
 
 @pytest.fixture
-def temp_python_file(tmp_path):
+def temp_python_file(tmp_path: Path) -> Callable[[str, str], Path]:
     """Create a temporary Python file for testing."""
 
-    def _create_file(content: str, name: str = "test_file.py"):
+    def _create_file(content: str, name: str = "test_file.py") -> Path:
         file_path = tmp_path / name
         file_path.write_text(content)
         return file_path

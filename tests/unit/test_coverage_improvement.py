@@ -35,8 +35,8 @@ def test_base_formatter():
     from src_check.formatters import BaseFormatter
 
     # Test that it's abstract
-    with pytest.raises(TypeError):
-        BaseFormatter()
+    with pytest.raises(TypeError, match="abstract"):
+        BaseFormatter()  # type: ignore[abstract]
 
     # Create a concrete implementation
     class TestFormatter(BaseFormatter):

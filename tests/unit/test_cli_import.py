@@ -99,8 +99,8 @@ class TestMainCLI:
         with mock.patch("sys.argv", ["src-check", "."]), mock.patch(
             "builtins.print"
         ), mock.patch("src_check.cli.main.validate_paths", return_value=[Path(".")]):
-            result = main()
-            assert result is None  # Normal exit
+            main()
+            # main() doesn't return a value, just verify it completes
 
         # Verify calls
         mock_config_instance.load_default_config.assert_called_once()
@@ -200,9 +200,8 @@ class TestMainCLI:
             with mock.patch(
                 "sys.argv",
                 ["src-check", ".", "--format", "json", "--output", output_file],
-            ):
-                with mock.patch("builtins.print"):
-                    main()
+            ), mock.patch("builtins.print"):
+                main()
 
             # Check output file was created
             assert Path(output_file).exists()
@@ -270,7 +269,9 @@ class TestKPICLI:
         # Test that the function can be called with checkers filter
         with mock.patch(
             "sys.argv", ["src-check-kpi", ".", "--checkers", "security", "performance"]
-        ), mock.patch("builtins.print") as mock_print, mock.patch("pathlib.Path.exists", return_value=True):
+        ), mock.patch("builtins.print") as mock_print, mock.patch(
+            "pathlib.Path.exists", return_value=True
+        ):
             try:
                 # The actual implementation will try to import modules
                 # which may fail in test environment, so we catch SystemExit

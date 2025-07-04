@@ -64,13 +64,15 @@ def foo():
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open()) as mock_file:
-                    mock_file.return_value.read.side_effect = [mit_license, source_code]
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse(source_code)
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open()) as mock_file,
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            mock_file.return_value.read.side_effect = [mit_license, source_code]
+            ast_tree = ast.parse(source_code)
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should not have critical issues
         if result:
@@ -89,12 +91,14 @@ You can do whatever you want."""
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=unknown_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse("")
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=unknown_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC002" in result.metadata
@@ -117,16 +121,18 @@ You can do whatever you want."""
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=mit_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch(
-                            "importlib.metadata.distributions",
-                            return_value=[mock_dist1, mock_dist2],
-                        ):
-                            ast_tree = ast.parse("")
-                            result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=mit_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+            patch(
+                "importlib.metadata.distributions",
+                return_value=[mock_dist1, mock_dist2],
+            ),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC003" in result.metadata
@@ -146,15 +152,17 @@ You can do whatever you want."""
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=mit_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch(
-                            "importlib.metadata.distributions", return_value=[mock_dist]
-                        ):
-                            ast_tree = ast.parse("")
-                            result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=mit_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+            patch(
+                "importlib.metadata.distributions", return_value=[mock_dist]
+            ),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC004" in result.metadata
@@ -175,13 +183,15 @@ def foo():
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open()) as mock_file:
-                    mock_file.return_value.read.side_effect = [mit_license, source_code]
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse(source_code)
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open()) as mock_file,
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            mock_file.return_value.read.side_effect = [mit_license, source_code]
+            ast_tree = ast.parse(source_code)
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC005" in result.metadata
@@ -206,13 +216,15 @@ def foo():
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open()) as mock_file:
-                    mock_file.return_value.read.side_effect = [mit_license, source_code]
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse(source_code)
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open()) as mock_file,
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            mock_file.return_value.read.side_effect = [mit_license, source_code]
+            ast_tree = ast.parse(source_code)
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should not have LIC005 issue for this file
         if result:
@@ -237,13 +249,15 @@ def foo():
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open()) as mock_file:
-                    mock_file.return_value.read.side_effect = [mit_license, source_code]
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse(source_code)
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open()) as mock_file,
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            mock_file.return_value.read.side_effect = [mit_license, source_code]
+            ast_tree = ast.parse(source_code)
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC006" in result.metadata
@@ -264,23 +278,25 @@ license = {text = "Apache-2.0"}
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open()) as mock_file:
-                    # Configure different return values for different files
-                    mock_file.return_value.read.side_effect = [
-                        mit_license,
-                        pyproject_content,
-                    ]
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch(
-                            "toml.load",
-                            return_value={
-                                "project": {"license": {"text": "Apache-2.0"}}
-                            },
-                        ):
-                            ast_tree = ast.parse("")
-                            result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open()) as mock_file,
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+            patch(
+                "toml.load",
+                return_value={
+                    "project": {"license": {"text": "Apache-2.0"}}
+                },
+            ),
+        ):
+            # Configure different return values for different files
+            mock_file.return_value.read.side_effect = [
+                mit_license,
+                pyproject_content,
+            ]
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC007" in result.metadata
@@ -299,15 +315,17 @@ license = {text = "Apache-2.0"}
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=mit_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        with patch(
-                            "importlib.metadata.distributions", return_value=[mock_dist]
-                        ):
-                            ast_tree = ast.parse("")
-                            result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=mit_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+            patch(
+                "importlib.metadata.distributions", return_value=[mock_dist]
+            ),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         assert result is not None
         assert "LIC008" in result.metadata
@@ -332,12 +350,14 @@ license = {text = "Apache-2.0"}
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=apache_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse("")
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=apache_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should recognize Apache license
         if result:
@@ -360,12 +380,14 @@ modification, are permitted provided that the following conditions are met:
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=bsd_license)):
-                    with patch.object(Path, "iterdir", return_value=[Path("LICENSE")]):
-                        ast_tree = ast.parse("")
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=bsd_license)),
+            patch.object(Path, "iterdir", return_value=[Path("LICENSE")]),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should recognize BSD license
         if result:
@@ -384,20 +406,22 @@ modification, are permitted provided that the following conditions are met:
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=mit_license)):
-                    with patch.object(
-                        Path,
-                        "iterdir",
-                        return_value=[
-                            Path("LICENSE"),
-                            Path("LICENSE.txt"),
-                            Path("LICENSE.md"),
-                        ],
-                    ):
-                        ast_tree = ast.parse("")
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=mit_license)),
+            patch.object(
+                Path,
+                "iterdir",
+                return_value=[
+                    Path("LICENSE"),
+                    Path("LICENSE.txt"),
+                    Path("LICENSE.md"),
+                ],
+            ),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should handle multiple license files without critical issues
         if result:
@@ -424,14 +448,16 @@ license = "MIT"
         def is_file_side_effect(self):
             return True
 
-        with patch.object(Path, "exists", exists_side_effect):
-            with patch.object(Path, "is_file", is_file_side_effect):
-                with patch("builtins.open", mock_open(read_data=pyproject_content)):
-                    with patch(
-                        "toml.load", return_value={"project": {"license": "MIT"}}
-                    ):
-                        ast_tree = ast.parse("")
-                        result = self.checker.check(ast_tree, "test.py")
+        with (
+            patch.object(Path, "exists", exists_side_effect),
+            patch.object(Path, "is_file", is_file_side_effect),
+            patch("builtins.open", mock_open(read_data=pyproject_content)),
+            patch(
+                "toml.load", return_value={"project": {"license": "MIT"}}
+            ),
+        ):
+            ast_tree = ast.parse("")
+            result = self.checker.check(ast_tree, "test.py")
 
         # Should still report missing LICENSE file even if license is in pyproject.toml
         assert result is not None

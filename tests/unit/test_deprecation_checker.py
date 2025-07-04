@@ -2,6 +2,7 @@
 
 import ast
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -18,10 +19,10 @@ def checker():
 def temp_py_file(tmp_path):
     """一時的なPythonファイルを作成."""
 
-    def _create_file(content: str, filename: str = "test.py"):
+    def _create_file(content: str, filename: str = "test.py") -> Path:
         file_path = tmp_path / filename
         file_path.write_text(content)
-        return file_path
+        return Path(file_path)
 
     return _create_file
 
@@ -71,7 +72,7 @@ def test_deprecated_typing_python39(checker, temp_py_file):
     if sys.version_info < (3, 9):
         pytest.skip("Python 3.9+ required")
 
-    content = """
+    content = """  # type: ignore[unreachable]
 from typing import List, Dict, Set, Tuple, Type, FrozenSet
 """
     file_path = temp_py_file(content)
@@ -92,7 +93,7 @@ def test_typing_with_future_annotations(checker, temp_py_file):
     if sys.version_info < (3, 9):
         pytest.skip("Python 3.9+ required")
 
-    content = """
+    content = """  # type: ignore[unreachable]
 from __future__ import annotations
 from typing import List, Dict, Set
 """

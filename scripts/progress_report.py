@@ -14,7 +14,11 @@ def load_todo_status() -> List[Dict]:
     return [
         {"task": "コアデータモデルの実装", "status": "✅ 完了", "priority": "高"},
         {"task": "基本的な品質チェッカーの実装", "status": "✅ 完了", "priority": "高"},
-        {"task": "プラグインレジストリシステム", "status": "🔄 進行中", "priority": "中"},
+        {
+            "task": "プラグインレジストリシステム",
+            "status": "🔄 進行中",
+            "priority": "中",
+        },
         {"task": "KPIスコアリングエンジン", "status": "⬜ 未着手", "priority": "中"},
         {"task": "自動修正機能", "status": "⬜ 未着手", "priority": "低"},
     ]
@@ -24,11 +28,11 @@ def calculate_progress() -> Dict[str, float]:
     """Calculate project progress percentages."""
     return {
         "overall": 35.0,  # 2/5 major tasks + partial
-        "core": 100.0,    # Models done
+        "core": 100.0,  # Models done
         "checkers": 20.0,  # 4/20 checkers
-        "cli": 30.0,      # Basic CLI works
-        "tests": 62.8,    # Current coverage
-        "docs": 80.0,     # Most docs written
+        "cli": 30.0,  # Basic CLI works
+        "tests": 62.8,  # Current coverage
+        "docs": 80.0,  # Most docs written
     }
 
 
@@ -50,7 +54,7 @@ def generate_report() -> str:
     progress = calculate_progress()
     todos = load_todo_status()
     commits = get_recent_commits()
-    
+
     report = f"""# src-check Progress Report
 Generated: {now.strftime('%Y-%m-%d %H:%M')}
 
@@ -69,17 +73,17 @@ Documentation      : {'█' * int(progress['docs']/5)}{'░' * (20-int(progress[
 
 ### Major Tasks:
 """
-    
+
     for todo in todos:
         report += f"- {todo['status']} {todo['task']} (優先度: {todo['priority']})\n"
-    
+
     report += """
 ### Recent Achievements:
 """
-    
+
     for commit in commits[:5]:
         report += f"- {commit}\n"
-    
+
     report += f"""
 ## 🎯 Next Milestones
 
@@ -120,7 +124,7 @@ Documentation      : {'█' * int(progress['docs']/5)}{'░' * (20-int(progress[
 ---
 *Next report due: {(now.replace(day=now.day+7)).strftime('%Y-%m-%d')}*
 """
-    
+
     return report
 
 
@@ -128,19 +132,19 @@ def main():
     """Generate and display progress report."""
     report = generate_report()
     print(report)
-    
+
     # Save to file
-    report_dir = Path('reports')
+    report_dir = Path("reports")
     report_dir.mkdir(exist_ok=True)
-    
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    report_file = report_dir / f'progress_{timestamp}.md'
-    
-    with open(report_file, 'w', encoding='utf-8') as f:
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_file = report_dir / f"progress_{timestamp}.md"
+
+    with open(report_file, "w", encoding="utf-8") as f:
         f.write(report)
-    
+
     print(f"\n📄 Report saved to: {report_file}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

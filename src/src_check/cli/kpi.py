@@ -99,7 +99,7 @@ def main() -> None:
         from src_check.formatters.json import JsonFormatter
         from src_check.formatters.markdown import MarkdownFormatter
         from src_check.formatters.text import TextFormatter
-        
+
         def get_formatter(format_type: str) -> Any:
             """Get the appropriate formatter based on format type."""
             formatters = {
@@ -116,7 +116,7 @@ def main() -> None:
         # Get enabled checkers
         registry = CheckerRegistry()
         checkers = []
-        
+
         # Filter by categories if specified
         for checker in registry.get_all_checkers():
             checker_name = checker.__class__.__name__
@@ -177,9 +177,13 @@ def main() -> None:
             print(output)
 
         # Exit with appropriate code
-        score = getattr(kpi_score, 'total_score', getattr(kpi_score, 'overall_score', 0.0))
+        score = getattr(
+            kpi_score, "total_score", getattr(kpi_score, "overall_score", 0.0)
+        )
         if args.threshold and score < args.threshold:
-            print(f"\n❌ Quality score ({score:.1f}) below threshold ({args.threshold})")
+            print(
+                f"\n❌ Quality score ({score:.1f}) below threshold ({args.threshold})"
+            )
             sys.exit(1)
 
     except KeyboardInterrupt:

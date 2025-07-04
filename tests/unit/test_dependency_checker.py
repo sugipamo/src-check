@@ -137,8 +137,7 @@ test = [
 ]
 """
 
-        with patch("builtins.open", mock_open(read_data=pyproject_content)):
-            with patch("toml.load") as mock_toml:
+        with patch("builtins.open", mock_open(read_data=pyproject_content)), patch("toml.load") as mock_toml:
                 mock_toml.return_value = {
                     "project": {
                         "dependencies": [

@@ -3,7 +3,7 @@
 ## 🎯 ビジョン
 「pytestのように使いやすく、包括的で信頼性の高いPythonコード品質管理ツール」
 
-## 📅 現在の状況 (2025-07-04 13:30更新)
+## 📅 現在の状況 (2025-07-04 14:40更新)
 
 ### ✅ v0.2.0 - Functional 完了 ✅
 **テーマ**: 実用的なツールに
@@ -154,7 +154,7 @@
    - メモリ使用量500MB以下
    - CPU使用率2コア以下
 
-## 🔔 緊急対応事項（2025-07-04 13:30時点）
+## 🔔 緊急対応事項（2025-07-04 14:40時点）
 
 ### 最重要タスク
 1. **環境セットアップ問題の解決** ✅
@@ -162,11 +162,10 @@
    - 大量の仮想環境クリーンアップ実施済み
    - 開発環境の標準化必要
 
-2. **TestPyPI APIトークン設定** ⏳
-   - TestPyPIアカウントの作成/確認
-   - APIトークンの生成
-   - 認証情報の設定（環境変数推奨）
-   - パッケージアップロード実行
+2. **TestPyPI公開** ✅ 完了！
+   - TestPyPIへのアップロード成功（2025-07-04 14:38）
+   - インストールテスト完了
+   - https://test.pypi.org/project/src-check/0.2.0/
 
 3. **v0.2.0正式リリース作業**
    - TestPyPIでの動作確認後
@@ -199,10 +198,10 @@
   - [x] Gitタグ作成（v0.2.0）
   - [x] twine検証合格
   - [x] 公開スクリプト作成
-- [ ] **PyPIテストサーバーへの公開テスト (TestPyPI)** 🚀 最優先
-  - [ ] **TestPyPI APIトークン設定待ち**
-  - [ ] TestPyPIへのアップロード
-  - [ ] インストールテスト
+- [x] **✅ PyPIテストサーバーへの公開テスト (TestPyPI)** 
+  - [x] TestPyPI APIトークン設定完了
+  - [x] TestPyPIへのアップロード完了（2025-07-04 14:38）
+  - [x] インストールテスト成功
 - [ ] **PyPI正式公開**
   - [ ] PyPI APIトークン設定
   - [ ] 正式公開実行
@@ -460,22 +459,14 @@
 - [x] ✅ 公開スクリプト作成（quick_publish.sh）
 
 ### 🚀 リリース作業（残タスク）
-- [ ] **TestPyPI公開** 🔴 最優先
-  - [ ] TestPyPI APIトークン設定
+- [x] **TestPyPI公開** ✅ 完了！
+  - [x] TestPyPI APIトークン設定完了
+  - [x] TestPyPIへのアップロード完了（2025-07-04 14:38）
+  - [x] インストールテスト成功
     ```bash
-    # 1. TestPyPIアカウント作成: https://test.pypi.org/account/register/
-    # 2. APIトークン生成: https://test.pypi.org/manage/account/token/
-    # 3. ~/.pypircへの設定または環境変数TWINE_USERNAME/TWINE_PASSWORD設定
-    ```
-  - [ ] TestPyPIへのアップロード
-    ```bash
-    ./scripts/quick_publish.sh test
-    ```
-  - [ ] インストールテスト
-    ```bash
-    pip install -i https://test.pypi.org/simple/ src-check==0.2.0
-    src-check --version
-    src-check sample-project/
+    # 完了: pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ src-check==0.2.0
+    # 動作確認: src-check --version → 0.2.0
+    # 動作確認: src-check-kpi --version → 0.2.0
     ```
 - [ ] **PyPI正式公開**
   - [ ] PyPI APIトークン設定
@@ -490,4 +481,4 @@
 
 ---
 
-更新日: 2025-07-04 13:30（ROADMAP整理・次期タスク計画準備）
+更新日: 2025-07-04 14:40（TestPyPI公開完了・v0.2.0リリース90%完了）
